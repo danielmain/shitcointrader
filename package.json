@@ -1,0 +1,116 @@
+{
+  "name": "shitcointrader",
+  "productName": "shitcointrader",
+  "version": "1.0.0",
+  "description": "Shitcoins trader",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "echo \"No linting configured\""
+  },
+  "keywords": [],
+  "author": "daniel",
+  "license": "MIT",
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "make_targets": {
+        "win32": [
+          "squirrel"
+        ],
+        "darwin": [
+          "zip"
+        ],
+        "linux": [
+          "deb"
+        ]
+      },
+      "electronPackagerConfig": {
+        "packageManager": "yarn",
+        "executableName": "electron-react-example",
+        "icon": "./icon.svg"
+      },
+      "electronWinstallerConfig": {
+        "name": "electron_react_example",
+        "iconUrl": "./icon.ico"
+      },
+      "electronInstallerDebian": {
+        "icon": "./icon.svg",
+        "categories": [
+          "Utility"
+        ],
+        "homepage": "https://foo.com"
+      },
+      "electronInstallerRedhat": {},
+      "github_repository": {
+        "owner": "",
+        "name": ""
+      },
+      "windowsStoreConfig": {
+        "packageName": "",
+        "name": "electronreactexample"
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "shitcointrader"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "electron": "^5.0.6",
+    "electron-compile": "^6.4.4",
+    "electron-devtools-installer": "^2.2.4",
+    "electron-squirrel-startup": "^1.0.0",
+    "eslint_d": "^8.0.0",
+    "material-kit": "^2.0.4",
+    "pouchdb-adapter-http": "^7.1.1",
+    "pouchdb-adapter-memory": "^7.1.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "redux": "^4.0.1",
+    "redux-electron-ipc": "^1.2.0",
+    "rxdb": "^8.2.0",
+    "rxjs": "^6.4.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.0.2",
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
+    "babel-plugin-transform-es2015-classes": "^6.24.1",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "electron-forge": "^5.2.4",
+    "electron-prebuilt-compile": "4.0.0",
+    "eslint": "^6.0.1",
+    "eslint-config-prettier": "^6.0.0",
+    "eslint-plugin-compat": "^3.2.0",
+    "eslint-plugin-flowtype": "^3.11.1",
+    "eslint-plugin-import": "^2.18.0",
+    "eslint-plugin-jsx-a11y": "^6.2.2",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-react": "^7.14.2",
+    "flow-bin": "^0.102.0",
+    "flow-watch": "^1.1.4",
+    "webpack": "^4.35.2"
+  }
+}
