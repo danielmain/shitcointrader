@@ -101,10 +101,11 @@
     "import/resolver": {
       "node": {
         "paths": ["src"]
-      },
-      "webpack": {
-        "config": "configs/webpack.config.eslint.js"
       }
+      // ,
+      // "webpack": {
+      //   "config": "configs/webpack.config.eslint.js"
+      // }
     }
   }
 }

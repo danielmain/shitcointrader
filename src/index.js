@@ -45,7 +45,7 @@ const createWindow = () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', async function() {
+app.on('ready', async function () {
   const dbSuffix = new Date().getTime(); // we add a random timestamp in dev-mode to reset the database on each start
 
   const db = await database.getDatabase(
@@ -54,9 +54,9 @@ app.on('ready', async function() {
   );
 
   /**
-     * spawn a server
-     * which is used as sync-goal by page.js
-     */
+   * spawn a server
+   * which is used as sync-goal by page.js
+   */
   console.log('start server');
   db.server({
     path: '/db',

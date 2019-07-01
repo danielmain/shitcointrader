@@ -13,7 +13,7 @@
   },
   "keywords": [],
   "author": "daniel",
-  "license": "MIT",
+  "license": "GPL",
   "config": {
     "forge": {
       "packagerConfig": {},
@@ -78,22 +78,26 @@
     }
   },
   "dependencies": {
+    "bootstrap": "^4.3.1",
     "electron": "^5.0.6",
     "electron-compile": "^6.4.4",
     "electron-devtools-installer": "^2.2.4",
     "electron-squirrel-startup": "^1.0.0",
     "eslint_d": "^8.0.0",
-    "material-kit": "^2.0.4",
     "pouchdb-adapter-http": "^7.1.1",
     "pouchdb-adapter-memory": "^7.1.1",
     "react": "^16.8.6",
+    "react-bootstrap": "^1.0.0-beta.9",
     "react-dom": "^16.8.6",
+    "react-router": "^5.0.1",
+    "react-router-dom": "^5.0.1",
     "redux": "^4.0.1",
     "redux-electron-ipc": "^1.2.0",
     "rxdb": "^8.2.0",
     "rxjs": "^6.4.0"
   },
   "devDependencies": {
+    "@electron-forge/plugin-webpack": "^6.0.0-beta.39",
     "babel-eslint": "^10.0.2",
     "babel-plugin-transform-async-to-generator": "^6.24.1",
     "babel-plugin-transform-es2015-classes": "^6.24.1",
@@ -103,6 +107,7 @@
     "electron-prebuilt-compile": "4.0.0",
     "eslint": "^6.0.1",
     "eslint-config-prettier": "^6.0.0",
+    "eslint-import-resolver-webpack": "^0.11.1",
     "eslint-plugin-compat": "^3.2.0",
     "eslint-plugin-flowtype": "^3.11.1",
     "eslint-plugin-import": "^2.18.0",
@@ -111,6 +116,10 @@
     "eslint-plugin-react": "^7.14.2",
     "flow-bin": "^0.102.0",
     "flow-watch": "^1.1.4",
-    "webpack": "^4.35.2"
+    "mini-css-extract-plugin": "^0.7.0",
+    "optimize-css-assets-webpack-plugin": "^5.0.3",
+    "webpack": "^4.35.2",
+    "webpack-bundle-analyzer": "^3.3.2",
+    "webpack-merge": "^4.2.1"
   }
 }
