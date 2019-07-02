@@ -9,23 +9,18 @@ import {
   ButtonToolbar,
   Container
 } from 'react-bootstrap';
+import Home from '../home';
+import Setup from '../setup';
 
-const Routes = ({store}) => {
+const Routes = ( props ) => {
+  const { apiKey } = props;
   return (
     <HashRouter >
-      <div>
-        <Route path= "/" exact component={Home}/>
-        <Route path = "/setup" component={Setup}/>
-      </div>
+      <Route path= "/" exact render={
+        routeProps => !!apiKey ? <Home {...props} {...routeProps} /> : <Setup {...props} {...routeProps} />
+      } />
     </HashRouter>
   );
 };
 
-Root.propTypes = {
-  store: PropTypes.shape({
-    getState: PropTypes.func,
-    dispatch: PropTypes.func,
-  }).isRequired,
-}
-
-export default Root;
+export default Routes;

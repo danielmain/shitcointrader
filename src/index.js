@@ -82,7 +82,6 @@ app.on('ready', async function () {
   createWindow();
 });
 
-
 // pong event with arguments back to caller
 ipcMain.on('increment', (event, ...args) => {
   // console.log('Event', event);

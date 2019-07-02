@@ -8,16 +8,14 @@ import {
 import createIpc from 'redux-electron-ipc';
 import reducers from './reducers';
 import {
-  increment,
-  decrement
+  storeApiKey,
 } from './actions';
-import Routes from '@components/routes';
+import Routes from './components/routes';
 import * as serviceWorker from './serviceWorker';
 
 // register an action creator to an ipc channel (key/channel, value/action creator)
 const ipc = createIpc({
-  'increment': increment,
-  'decrement': decrement,
+  'storeApiKey': storeApiKey,
 });
 
 const store = createStore(reducers, applyMiddleware(ipc));

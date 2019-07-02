@@ -2,18 +2,13 @@
  * action types
  */
 
-export const INCREMENT = 'INCREMENT'
-export const DECREMENT = 'DECREMENT'
+export const STORE_APIKEY = 'STORE_APIKEY';
+
 
 /*
  * action creators
  */
 
-export function increment(text) {
-  console.log('Calling increment');
-  return { type: INCREMENT, text }
-}
-
-export function decrement(index) {
-  return { type: DECREMENT, index }
+export function storeApiKey(key) {
+  return { type: STORE_APIKEY, key }
 }
