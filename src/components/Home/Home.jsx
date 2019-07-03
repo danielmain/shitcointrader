@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'react-bootstrap';
 import _ from 'lodash';
 
-class Counter extends Component {
+class Home extends Component {
   constructor(props) {
     super(props);
     this.incrementAsync = this.incrementAsync.bind(this);
@@ -25,30 +26,30 @@ class Counter extends Component {
       <p>
         Clicked: {value} times
         {' '}
-        <button type="button" onClick={onIncrement}>
+        <Button variant="success" onClick={onIncrement}>
           +
-        </button>
+        </Button>
         {' '}
-        <button type="button" onClick={onDecrement}>
+        <Button variant="primary" onClick={onDecrement}>
           -
-        </button>
+        </Button>
         {' '}
-        <button type="button" onClick={this.incrementIfOdd}>
+        <Button variant="primary" onClick={this.incrementIfOdd}>
           Increment if odd
-        </button>
+        </Button>
         {' '}
-        <button type="button" onClick={this.incrementAsync}>
+        <Button variant="primary" onClick={this.incrementAsync}>
           Increment async
-        </button>
+        </Button>
       </p>
     )
   }
 }
 
-Counter.propTypes = {
+Home.propTypes = {
   value: PropTypes.number.isRequired,
   onIncrement: PropTypes.func.isRequired,
   onDecrement: PropTypes.func.isRequired
 }
 
-export default Counter
+export default Home

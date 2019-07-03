@@ -1,15 +1,21 @@
 // @flow
-const electron = require('electron');
+import _ from 'lodash';
 
+// Binance stuff ------------------------------------ //
+import BinanceHandler from './api/binanceHandler.js';
+const API_KEY = _.get(process, 'env.API_KEY', null);
+const API_SECRET = _.get(
+  process,
+  'env.API_SECRET',
+  null,
+);
+
+// Elextron stuff ------------------------------------ //
+const electron = require('electron');
 const app = electron.app;
 const ipcMain = electron.ipcMain;
 const BrowserWindow = electron.BrowserWindow;
 
-const database = require('./database');
-
-const RxDB = require('rxdb');
-RxDB.plugin(require('rxdb/plugins/server'));
-RxDB.plugin(require('pouchdb-adapter-memory'));
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -23,9 +29,13 @@ let mainWindow;
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1300,
+    height: 1000,
   });
+
+  BrowserWindow.addDevToolsExtension('/Users/daniel/Library/Application Support/BraveSoftware/Brave-Browser-Dev/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0');
+  BrowserWindow.addDevToolsExtension('/Users/daniel/Library/Application Support/BraveSoftware/Brave-Browser-Dev/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.6.0_0');
+
 
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/index.html`);
@@ -42,52 +52,55 @@ const createWindow = () => {
   });
 };
 
+
+// Database stuff ------------------------------------ //
+import DatabaseHandler from './api/databaseHandler.js';
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', async function() {
-  const dbSuffix = new Date().getTime(); // we add a random timestamp in dev-mode to reset the database on each start
-
-  const db = await database.getDatabase(
-    'trading' + dbSuffix,
-    'memory'
-  );
-
-  /**
-     * spawn a server
-     * which is used as sync-goal by page.js
-     */
-  console.log('start server');
-  db.server({
-    path: '/db',
-    port: 10102,
-    cors: true
-  });
-  console.log('started server');
-
-  // // show setup table in console
-  // db.setup.findOne().$.subscribe(setupDocs => {
-  //   console.log('### got setup(' + setupDocs.length + '):');
-  //   setupDocs.forEach(doc => console.log(doc.apiKey));
-  // });
-
-  // // show trading table in console
-  // db.trading.find('name').$.subscribe(tradingDocs => {
-  //   console.log('### got trading(' + tradingDocs.length + '):');
-  //   tradingDocs.forEach(doc => console.log(
-  //     doc.timestamp + '  |  ' + doc.coin
-  //   ));
-  // });
+app.on('ready', async function () {
 
   createWindow();
 });
 
+ipcMain.on('storeKeys', async (event, ...args) => {
+  console.dir(args);
+  
+  // const storeKeysInDb = (apiKey, apiSecret) => {
+  //   const setupCollection = DatabaseHandler.getSetupCollection(app);
+  //   try {
+  //     await setupCollection.insert({
+  //       apiKey,
+  //       apiSecret
+  //     });
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
-// pong event with arguments back to caller
-ipcMain.on('increment', (event, ...args) => {
-  // console.log('Event', event);
-  console.log('Args', ...args);
-  event.sender.send('pong', ...args);
+  // const apiKey = _.get(args, '[0].API_KEY', API_KEY);
+  // const apiSecret = _.get(args, '[0].API_SECRET', API_SECRET);
+  // const credentialsOk = await BinanceHandler.checkCredentials(apiKey, apiSecret);
+  // if (credentialsOk) {
+  //   console.log('Credentials OK');
+  //   storeKeysInDb(apiKey, apiSecret);
+  // } else {
+  //   console.log('Credentials wrong');
+  // }
+
+});
+
+ipcMain.on('getKeys', async (event, ...args) => {
+  // console.dir(args);
+  const setupCollection = DatabaseHandler.getSetupCollection(app);
+  try {
+    const keys = await setupCollection.find({})
+    // console.log('keys: ', keys);
+    event.sender.send('getKeys', [keys]);
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 // Quit when all windows are closed.
@@ -109,3 +122,39 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+const getBalancePromise = (
+  code,
+  binanceClient,
+) => new Promise((resolve, reject) => binanceClient.balance((error, balances) => {
+  console.log('TCL: balances', balances);
+  if (error) {
+    resolve(error);
+  }
+  const balance = _.get(
+    balances,
+    `${code.toUpperCase()}.available`,
+    false,
+  );
+  
+  if (_.isNumber(balance)) {
+    resolve(false);
+  } else {
+    resolve(true);
+  }
+}));
+
+const checkBinanceCredentials = async (APIKEY, APISECRET) => {
+  const binance = require('node-binance-api')().options({
+    APIKEY,
+    APISECRET,
+    useServerTime: true // If you get timestamp errors, synchronize to server time at startup
+  });
+
+  try {
+    return await getBalancePromise('BTC', binance);
+  } catch (error) {
+    console.error(error);
+    return false;
+  } 
+}

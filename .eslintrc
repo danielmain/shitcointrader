@@ -11,7 +11,7 @@
   },
   "rules": {
     "arrow-parens": ["off"],
-    "compat/compat": "error",
+    "compat/compat": "off",
     "consistent-return": "off",
     "comma-dangle": "off",
     "no-shadow": 0,
@@ -52,7 +52,7 @@
     "flowtype/delimiter-dangle": ["error", "never"],
     "flowtype/generic-spacing": ["error", "never"],
     "flowtype/no-primitive-constructor-types": "error",
-    "flowtype/no-weak-types": "warn",
+    "flowtype/no-weak-types": "off",
     "flowtype/object-type-delimiter": ["error", "comma"],
     "flowtype/require-parameter-type": "off",
     "flowtype/require-return-type": "off",
@@ -101,10 +101,11 @@
     "import/resolver": {
       "node": {
         "paths": ["src"]
-      },
-      "webpack": {
-        "config": "configs/webpack.config.eslint.js"
       }
+      // ,
+      // "webpack": {
+      //   "config": "configs/webpack.config.eslint.js"
+      // }
     }
   }
 }

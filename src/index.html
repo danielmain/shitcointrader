@@ -3,12 +3,12 @@
 
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <link rel="stylesheet" type="text/css" href="./styles/style.css">
+  <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="./styles/theme.css">
   <script type="text/javascript">
     let cssUrl = '';
     if (process.platform === 'linux') {
       const execSync = require('child_process').execSync;
-
       const theme = execSync('gsettings get org.gnome.desktop.interface gtk-theme').toString().toLowerCase()
 
       if (theme.includes('adwaita')) {
@@ -35,6 +35,6 @@
 <body style="overflow: hidden; background-color: rgba(0,0,0,0); margin: 0">
   <div id="Main">Hola</div>
 </body>
-<script src="app.js"></script>
+<script src="App.jsx"></script>
 
 </html>
