@@ -29,8 +29,6 @@ let mainWindow;
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1300,
-    height: 1000,
   });
 
   BrowserWindow.addDevToolsExtension('/Users/daniel/Library/Application Support/BraveSoftware/Brave-Browser-Dev/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0');
@@ -51,10 +49,6 @@ const createWindow = () => {
     mainWindow = null;
   });
 };
-
-
-// Database stuff ------------------------------------ //
-import DatabaseHandler from './api/databaseHandler.js';
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

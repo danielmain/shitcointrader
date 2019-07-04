@@ -1,6 +1,3 @@
-import _ from 'lodash';
-
-const reducers = (state, action) => {
   switch (action.type) {
   case 'STORE_APIKEY':
     return { 
@@ -14,7 +11,6 @@ const reducers = (state, action) => {
       apiKey: _.get(action, 'key', '')
     }
   default:
-    return state;
   }
 }
 
