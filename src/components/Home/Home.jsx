@@ -24,6 +24,7 @@ const Home = (props) => {
   const keys = _.get(props, 'keys', {});
   useEffect(() => {
     if (_.isEmpty(keys)) {
+      console.log('===========> Calling getApiKey')
       props.getApiKey();
     }
   }, [props.keys]);
@@ -37,14 +38,10 @@ const Home = (props) => {
         <Form 
           validated={true}
           onSubmit={async event => {
-            // const apiKey = _.get(event.target, 'apiKey.value', false);
-            // const apiSecret = _.get(event.target, 'apiSecret.value', false);
-            // console.log('Submit');
-            // console.dir(props);
-            // const apiKeys = props.getApiKey();
-            // store.dispatch(storeApiKey({apiKey, apiSecret}));
-            // console.log('props.apiKey=>', props.apiKey);
-          
+            const apiKey = _.get(event.target, 'apiKey.value', false);
+            const apiSecret = _.get(event.target, 'apiSecret.value', false);
+            props.storeApiKey({apiKey, apiSecret});
+            console.log('props.apiKey=>', props.apiKey);
             event.preventDefault();
             event.stopPropagation();
             // const credentialsCheck = await checkBinanceCredentials(apiKey, apiSecret);
@@ -110,7 +107,7 @@ const Home = (props) => {
         </Nav.Item>
         <Nav.Item>
           <Nav.Link eventKey="disabled" disabled>
-      Disabled
+            Disabled
           </Nav.Link>
         </Nav.Item>
       </Nav>
@@ -124,7 +121,8 @@ const mapStateToProps = state => ({
   ...state
 });
 const mapDispatchToProps = dispatch => ({
-  getApiKey: () => dispatch(send('getApiKey'))
+  getApiKey: () => dispatch(send('getApiKey')),
+  storeApiKey: () => dispatch(send('storeApiKey'))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

@@ -59,51 +59,48 @@ const createWindow = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async function () {
-
   createWindow();
 });
 
 ipcMain.on('storeApiKey', async (event, ...args) => {
-  console.dir(args);
-  
-  // const storeKeysInDb = (apiKey, apiSecret) => {
-  //   const setupCollection = DatabaseHandler.getSetupCollection(app);
-  //   try {
-  //     await setupCollection.insert({
-  //       apiKey,
-  //       apiSecret
-  //     });
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-
-  // const apiKey = _.get(args, '[0].API_KEY', API_KEY);
-  // const apiSecret = _.get(args, '[0].API_SECRET', API_SECRET);
-  // const credentialsOk = await BinanceHandler.checkCredentials(apiKey, apiSecret);
-  // if (credentialsOk) {
-  //   console.log('Credentials OK');
-  //   storeKeysInDb(apiKey, apiSecret);
-  // } else {
-  //   console.log('Credentials wrong');
-  // }
-
-});
-
-let keys = [];
-ipcMain.on('getApiKey', async (event, ...args) => {
-  if (_.isEmpty(keys)){
+  const storeKeysInDb = (apiKey: string, apiSecret: string) => {
     const setupCollection = DatabaseHandler.getSetupCollection(app);
     try {
-      keys = await setupCollection.find({})
-      console.log('event.sender: ', event.sender);
-      console.log('keys: ', keys);
+      setupCollection.insert({
+        apiKey,
+        apiSecret
+      });
     } catch (error) {
       console.error(error);
     }
-  } 
-  event.sender.send('storeApiKey', keys);
-  
+  };
+
+  const apiKey = _.get(args, '[0].API_KEY', API_KEY);
+  const apiSecret = _.get(args, '[0].API_SECRET', API_SECRET);
+  const credentialsOk = await BinanceHandler.checkCredentials(apiKey, apiSecret);
+  event.sender.send('setStatusApiKey', credentialsOk);
+  if (credentialsOk) {
+    console.log('Credentials OK');
+    event.sender.send('storeApiKey', {apiKey, apiSecret});
+  } else {
+    console.log('Credentials wrong');
+  }
+
+});
+
+ipcMain.on('getApiKey', async (event, ...args) => {
+  let keys = [];
+  const setupCollection = DatabaseHandler.getSetupCollection(app);
+  try {
+    keys = await setupCollection.find({})
+    // console.log('event.sender: ', event.sender);
+    console.log('keys: ', keys);
+  } catch (error) {
+    console.error(error);
+  }
+  if (!_.isEmpty(keys)){
+    event.sender.send('storeApiKey', keys);    
+  }
 });
 
 // Quit when all windows are closed.

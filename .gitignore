@@ -1,3 +1,5 @@
 node_modules
 out
 .env
+data
+.DS_Store
