@@ -1,7 +1,6 @@
 //@flow
 import React from 'react'
 import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
 import {
   createStore,
@@ -17,21 +16,13 @@ import {
   HashRouter,
   Route
 } from 'react-router-dom';
-import {
-  ButtonToolbar,
-  Container
-} from 'react-bootstrap';
-import Home from '../home';
-import Setup from '../setup';
+import Routes from './components/routes';
 import * as serviceWorker from './serviceWorker';
 
-// register an action creator to an ipc channel (key/channel, value/action creator)
 const ipc = createIpc({
   'storeApiKey': storeApiKey,
   'getApiKey': getApiKey,
 });
-
-serviceWorker.unregister();
 
 const store = createStore(reducers, applyMiddleware(ipc));
 
@@ -39,12 +30,11 @@ const root = document.getElementById('Main')
 if (root !== null) {
   const render = () => {
     ReactDOM.render(
-    <Provider store={store}>
-      <HashRouter >
-        <Route path= "/" exact render={
-          routeProps => <Home {...props} {...routeProps} />
-        } />
-      </HashRouter>
-    </Provider>, root);
+      <Provider store={store}>
+        <Routes />
+      </Provider>, root);
   }
+  render();
 }
+
+serviceWorker.unregister();

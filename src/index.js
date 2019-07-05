@@ -10,6 +10,9 @@ const API_SECRET = _.get(
   null,
 );
 
+// Database stuff ------------------------------------ //
+import DatabaseHandler from './api/databaseHandler.js';
+
 // Elextron stuff ------------------------------------ //
 const electron = require('electron');
 const app = electron.app;
@@ -29,6 +32,8 @@ let mainWindow;
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
+    width: 1300,
+    height: 1000,
   });
 
   BrowserWindow.addDevToolsExtension('/Users/daniel/Library/Application Support/BraveSoftware/Brave-Browser-Dev/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0');
@@ -58,7 +63,7 @@ app.on('ready', async function () {
   createWindow();
 });
 
-ipcMain.on('storeKeys', async (event, ...args) => {
+ipcMain.on('storeApiKey', async (event, ...args) => {
   console.dir(args);
   
   // const storeKeysInDb = (apiKey, apiSecret) => {
@@ -85,16 +90,20 @@ ipcMain.on('storeKeys', async (event, ...args) => {
 
 });
 
-ipcMain.on('getKeys', async (event, ...args) => {
-  // console.dir(args);
-  const setupCollection = DatabaseHandler.getSetupCollection(app);
-  try {
-    const keys = await setupCollection.find({})
-    // console.log('keys: ', keys);
-    event.sender.send('getKeys', [keys]);
-  } catch (error) {
-    console.error(error);
-  }
+let keys = [];
+ipcMain.on('getApiKey', async (event, ...args) => {
+  if (_.isEmpty(keys)){
+    const setupCollection = DatabaseHandler.getSetupCollection(app);
+    try {
+      keys = await setupCollection.find({})
+      console.log('event.sender: ', event.sender);
+      console.log('keys: ', keys);
+    } catch (error) {
+      console.error(error);
+    }
+  } 
+  event.sender.send('storeApiKey', keys);
+  
 });
 
 // Quit when all windows are closed.
