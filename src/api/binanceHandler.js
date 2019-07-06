@@ -15,7 +15,7 @@ const getBalancePromise = (
   binanceClient: any,
 ) => new Promise((resolve, reject) => binanceClient.balance((error, balances) => {
   if (error) {
-    console.log('Error getting Balance', error);
+    console.log('Error getting Balance');
     reject(error);
   }
   const balance = _.get(
@@ -48,8 +48,8 @@ const getCoinBalance = async (
   return balanceExactNumber;
 };
 
-const checkCredentials = async (APIKEY, APISECRET) => {
-  console.log('Checking credentials ....');
+const checkCredentials = async (APIKEY: string, APISECRET: string) => {
+  console.log(`Checking credentials ....APIKEY: ${APIKEY} | APISECRET: ${APISECRET}`);
   const binance = require('node-binance-api')().options({
     APIKEY,
     APISECRET,
@@ -57,10 +57,14 @@ const checkCredentials = async (APIKEY, APISECRET) => {
   });
 
   try {
-    return await getBalancePromise('BTC', binance);
+    const balance = await getBalancePromise('BTC', binance);
+    console.log('TCL: checkCredentials -> balance', balance);
+    return _.isEmpty(balance) ?
+      { code: 500, msg: 'Error getting balance' } :
+      { code: 202, msg: 'Credentials ok' } ;
   } catch (error) {
-    console.error(error);
-    return false;
+    const errorObject = JSON.parse(_.get(error, 'body', {}));
+    return errorObject;
   } 
 }
 

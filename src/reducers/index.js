@@ -3,17 +3,25 @@ import _ from 'lodash';
 const reducers = (state = {}, action) => {
   switch (action.type) {
   case 'STORE_APIKEY':
+    console.log('reducers=> STORE_APIKEY', action);
     return { 
       ...state, 
-      keys: _.get(action, 'keys[0]', {})
+      keys: _.get(action, 'payload', {})
     };
   case '@@IPC':
-    console.log(' ############## getApiKey', state.apiKey);
+    console.log('reducers=> IPC', action);
     return state;
   case 'GET_APIKEY':
+    console.log('reducers=> GET_APIKEY', action);
+    return { 
+      ...state,
+      keys: _.get(action, 'key', {})
+    };
+  case 'SET_STATUS':
+    console.log('reducers=> SET_STATUS', action);
     return { 
       ...state, 
-      keys: _.get(action, 'payload', 'bla bla')
+      status: _.get(action, 'payload', {})
     };
   default:
   	return state;

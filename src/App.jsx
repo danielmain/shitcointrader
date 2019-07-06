@@ -11,6 +11,7 @@ import reducers from './reducers';
 import {
   storeApiKey,
   getApiKey,
+  setStatus,
 } from './actions';
 import {
   HashRouter,
@@ -22,6 +23,7 @@ import * as serviceWorker from './serviceWorker';
 const ipc = createIpc({
   'storeApiKey': storeApiKey,
   'getApiKey': getApiKey,
+  'setStatus': setStatus,
 });
 
 const store = createStore(reducers, applyMiddleware(ipc));

@@ -4,26 +4,22 @@
 
 export const STORE_APIKEY = 'STORE_APIKEY';
 export const GET_APIKEY = 'GET_APIKEY';
+export const SET_STATUS = 'SET_STATUS';
 
 /*
  * action creators
  */
 
-export function storeApiKey(event, keys) {
-  console.log('reducers=> keys => keys', keys);
-  return { type: STORE_APIKEY, keys }
+export function storeApiKey(event, payload) {
+  console.log('Actions: storeApiKey -> keys', payload)
+  return { type: STORE_APIKEY, payload }
 }
 
 export function getApiKey() {
   return { type: GET_APIKEY }
 }
 
-
-// function pongActionCreator (event, arg1, arg2, arg3) {
-//   return {
-//     type: 'IPC_PONG',
-//     arg1,
-//     arg2,
-//     arg3
-//   };
-// }
+export function setStatus(event, payload) {
+  console.log('Actions: status -> status', payload)
+  return { type: SET_STATUS, payload }
+}

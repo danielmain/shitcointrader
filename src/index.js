@@ -19,7 +19,6 @@ const app = electron.app;
 const ipcMain = electron.ipcMain;
 const BrowserWindow = electron.BrowserWindow;
 
-
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
   app.quit();
@@ -62,30 +61,29 @@ app.on('ready', async function () {
   createWindow();
 });
 
-ipcMain.on('storeApiKey', async (event, ...args) => {
-  const storeKeysInDb = (apiKey: string, apiSecret: string) => {
+ipcMain.on('storeApiKey', async (event, keys) => {
+  const storeKeysInDb = async (apiKey: string, apiSecret: string) => {
     const setupCollection = DatabaseHandler.getSetupCollection(app);
     try {
-      setupCollection.insert({
+      return await setupCollection.insert({
         apiKey,
         apiSecret
       });
     } catch (error) {
       console.error(error);
     }
+    return false;
   };
-
-  const apiKey = _.get(args, '[0].API_KEY', API_KEY);
-  const apiSecret = _.get(args, '[0].API_SECRET', API_SECRET);
-  const credentialsOk = await BinanceHandler.checkCredentials(apiKey, apiSecret);
-  event.sender.send('setStatusApiKey', credentialsOk);
-  if (credentialsOk) {
-    console.log('Credentials OK');
-    event.sender.send('storeApiKey', {apiKey, apiSecret});
+  const apiKey = _.get(keys, 'apiKey', API_KEY);
+  const apiSecret = _.get(keys, 'apiSecret', API_SECRET);
+  const credentialsStatus = await BinanceHandler.checkCredentials(apiKey, apiSecret);
+  event.sender.send('setStatus', credentialsStatus);
+  if (_.get(credentialsStatus, 'code', false) === 202) {
+    const result = await storeKeysInDb(apiKey, apiSecret);
+    !!result ? event.sender.send('storeApiKey', result) : console.error('Cannot store keys in db');
   } else {
-    console.log('Credentials wrong');
+    console.error('Credentials wrong');
   }
-
 });
 
 ipcMain.on('getApiKey', async (event, ...args) => {
@@ -94,7 +92,7 @@ ipcMain.on('getApiKey', async (event, ...args) => {
   try {
     keys = await setupCollection.find({})
     // console.log('event.sender: ', event.sender);
-    console.log('keys: ', keys);
+    // console.log('keys: ', keys);
   } catch (error) {
     console.error(error);
   }
@@ -127,7 +125,6 @@ const getBalancePromise = (
   code,
   binanceClient,
 ) => new Promise((resolve, reject) => binanceClient.balance((error, balances) => {
-  console.log('TCL: balances', balances);
   if (error) {
     resolve(error);
   }
