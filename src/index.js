@@ -35,8 +35,8 @@ const createWindow = () => {
     height: 1000,
   });
 
-  BrowserWindow.addDevToolsExtension('/Users/daniel/Library/Application Support/BraveSoftware/Brave-Browser-Dev/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0');
-  BrowserWindow.addDevToolsExtension('/Users/daniel/Library/Application Support/BraveSoftware/Brave-Browser-Dev/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.6.0_0');
+  //BrowserWindow.addDevToolsExtension('/Users/daniel/Library/Application Support/BraveSoftware/Brave-Browser-Dev/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0');
+  //BrowserWindow.addDevToolsExtension('/Users/daniel/Library/Application Support/BraveSoftware/Brave-Browser-Dev/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.6.0_0');
 
 
   // and load the index.html of the app.
@@ -97,7 +97,7 @@ ipcMain.on('getApiKey', async (event, ...args) => {
     console.error(error);
   }
   if (!_.isEmpty(keys)){
-    event.sender.send('storeApiKey', keys);    
+    event.sender.send('storeApiKey', keys);
   }
 });
 
@@ -133,7 +133,7 @@ const getBalancePromise = (
     `${code.toUpperCase()}.available`,
     false,
   );
-  
+
   if (_.isNumber(balance)) {
     resolve(false);
   } else {
@@ -153,5 +153,5 @@ const checkBinanceCredentials = async (APIKEY, APISECRET) => {
   } catch (error) {
     console.error(error);
     return false;
-  } 
+  }
 }

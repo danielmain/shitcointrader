@@ -94,6 +94,7 @@
     "react": "^16.8.6",
     "react-bootstrap": "^1.0.0-beta.9",
     "react-dom": "^16.8.6",
+    "react-native-web": "^0.11.5",
     "react-redux": "^7.1.0",
     "react-router": "^5.0.1",
     "react-router-dom": "^5.0.1",
@@ -104,6 +105,7 @@
   "devDependencies": {
     "@electron-forge/plugin-webpack": "^6.0.0-beta.39",
     "babel-eslint": "^10.0.2",
+    "babel-plugin-module-resolver": "^3.2.0",
     "babel-plugin-transform-async-to-generator": "^6.24.1",
     "babel-plugin-transform-es2015-classes": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",

@@ -6,7 +6,12 @@
           ["env", { "targets": { "electron": "1.6.0" } }],
           "react"
         ],
-        "plugins": ["transform-async-to-generator", "transform-es2015-classes", "transform-object-rest-spread"],
+        "plugins": ["transform-async-to-generator", "transform-es2015-classes", "transform-object-rest-spread", ["module-resolver", {
+              "alias": {
+                 "^react-native$": "react-native-web"
+              }
+            }]
+        ],
         "sourceMaps": "inline"
       }
     },
@@ -16,7 +21,12 @@
           ["env", { "targets": { "electron": "1.6.0" } }],
           "react"
         ],
-        "plugins": ["transform-async-to-generator", "transform-es2015-classes", "transform-object-rest-spread"],
+        "plugins": ["transform-async-to-generator", "transform-es2015-classes", "transform-object-rest-spread", ["module-resolver", {
+              "alias": {
+                 "^react-native$": "react-native-web"
+              }
+            }]
+        ],
         "sourceMaps": "none"
       }
     }
