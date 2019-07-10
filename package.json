@@ -85,12 +85,14 @@
     "electron-devtools-installer": "^2.2.4",
     "electron-squirrel-startup": "^1.0.0",
     "jquery": "^3.4.1",
+    "lodash": "^4.17.14",
     "nedb-promises": "^3.0.6",
     "node-binance-api": "^0.9.4",
     "node-datetime": "^2.1.2",
     "popper.js": "^1.14.4",
     "pouchdb-adapter-http": "^7.1.1",
     "pouchdb-adapter-memory": "^7.1.1",
+    "prop-types": "^15.7.2",
     "react": "^16.8.6",
     "react-base": "^0.2.0",
     "react-bootstrap": "^1.0.0-beta.9",
@@ -117,7 +119,9 @@
     "electron-prebuilt-compile": "4.0.0",
     "electron-redux-devtools": "firejune/electron-redux-devtools",
     "eslint": "^6.0.1",
+    "eslint-config-airbnb": "^17.1.1",
     "eslint-config-prettier": "^6.0.0",
+    "eslint-import-resolver-webpack": "^0.11.1",
     "eslint-plugin-compat": "^3.2.0",
     "eslint-plugin-flowtype": "^3.11.1",
     "eslint-plugin-import": "^2.18.0",
@@ -125,7 +129,9 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react": "^7.14.2",
     "eslint_d": "^8.0.0",
+    "flow": "^0.2.3",
     "flow-bin": "^0.102.0",
-    "flow-watch": "^1.1.4"
+    "flow-watch": "^1.1.4",
+    "prettier-eslint": "^9.0.0"
   }
 }

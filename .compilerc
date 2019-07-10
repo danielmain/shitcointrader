@@ -4,7 +4,8 @@
       "application/javascript": {
         "presets": [
           ["env", { "targets": { "electron": "1.6.0" } }],
-          "react"
+          "react",
+          "flow"
         ],
         "plugins": ["transform-async-to-generator", "transform-es2015-classes", "transform-object-rest-spread", ["module-resolver", {
             "alias": {
@@ -19,7 +20,8 @@
       "application/javascript": {
         "presets": [
           ["env", { "targets": { "electron": "1.6.0" } }],
-          "react"
+          "react",
+          "flow"
         ],
         "plugins": ["transform-async-to-generator", "transform-es2015-classes", "transform-object-rest-spread", ["module-resolver", {
             "alias": {

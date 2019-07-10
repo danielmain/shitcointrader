@@ -1,4 +1,4 @@
-//@flow
+// @flow
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { send } from 'redux-electron-ipc';
@@ -9,7 +9,7 @@ import { Text, Button, AppRegistry, Image, StyleSheet, View } from 'react-native
 import Binance from 'node-binance-api';
 import {
   HashRouter,
-  Route
+  Route,
 } from 'react-router-dom';
 // import {
 //   Button,
@@ -27,32 +27,32 @@ const logoUri = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"
 const styles = StyleSheet.create({
   app: {
     marginHorizontal: 'auto',
-    maxWidth: 500
+    maxWidth: 500,
   },
   logo: {
-    height: 80
+    height: 80,
   },
   header: {
-    padding: 20
+    padding: 20,
   },
   title: {
     fontWeight: 'bold',
     fontSize: '1.5rem',
     marginVertical: '1em',
-    textAlign: 'center'
+    textAlign: 'center',
   },
   text: {
     lineHeight: '1.5em',
     fontSize: '1.125rem',
     marginVertical: '1em',
-    textAlign: 'center'
+    textAlign: 'center',
   },
   link: {
-    color: '#1B95E0'
+    color: '#1B95E0',
   },
   code: {
-    fontFamily: 'monospace, monospace'
-  }
+    fontFamily: 'monospace, monospace',
+  },
 });
 
 const Home = (props) => {
@@ -123,9 +123,9 @@ const Home = (props) => {
     //   </Modal.Dialog>
     // </div>
     // );
-  } else {
-    return (
-      <View style={styles.app}>
+  }
+  return (
+    <View style={styles.app}>
         <View style={styles.header}>
           <Image
             accessibilityLabel="React logo"
@@ -137,19 +137,16 @@ const Home = (props) => {
         </View>
         <Button onPress={() => {}} title="Example button" />
       </View>
-    );
-  }
-
-
+  );
 };
 
 const mapStateToProps = state => ({
-  ...state
+  ...state,
 });
 const mapDispatchToProps = dispatch => ({
   getApiKey: () => dispatch(send('getApiKey')),
-  storeApiKey: (keys) => dispatch(send('storeApiKey', keys)),
-  setStatus: (status) => dispatch(send('setStatus', status))
+  storeApiKey: keys => dispatch(send('storeApiKey', keys)),
+  setStatus: status => dispatch(send('setStatus', status)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);
