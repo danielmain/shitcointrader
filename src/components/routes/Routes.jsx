@@ -1,42 +1,39 @@
 //@flow
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React, { useEffect } from 'react';
 import {
   HashRouter,
   Route
 } from 'react-router-dom';
+import { send } from 'redux-electron-ipc';
+import { connect } from 'react-redux';
+import _ from 'lodash';
+import Login from '../Login';
 import Home from '../Home';
-import { Provider } from 'react-redux';
-import {
-  createStore,
-  applyMiddleware
-} from 'redux';
-import createIpc from 'redux-electron-ipc';
-import reducers from '../../reducers';
-import {
-  storeApiKey,
-  getApiKey,
-  setStatus,
-} from '../../actions';
-
-const ipc = createIpc({
-  'storeApiKey': storeApiKey,
-  'getApiKey': getApiKey,
-  'setStatus': setStatus,
-});
-const store = createStore(reducers, applyMiddleware(ipc));
-
 
 const Routes = ( props ) => {
+  const status = _.get(props, 'status', {});
+  const keys = _.get(props, 'keys', {});
+
+  useEffect(() => {
+    if (!_.get(keys, 'apiKey', false) && !_.get(status, 'status', 500) !== 500) {
+      props.getApiKey();
+    }
+  }, [props.keys]);
+
   return (
-    <Provider store={store}>
-      <HashRouter>
-        <Route path= "/" exact render={
-          routeProps => <Home {...props} {...routeProps} />
-        }/>
-      </HashRouter>
-    </Provider>
+    <HashRouter>
+      <Route path= "/" exact render={
+        routeProps => _.get(keys, 'apiKey') ? <Home {...props} {...routeProps} /> : <Login {...props} {...routeProps} /> 
+      }/>
+    </HashRouter>
   );
 };
 
-export default Routes;
+const mapStateToProps = state => ({
+  ...state
+});
+const mapDispatchToProps = dispatch => ({
+  getApiKey: () => dispatch(send('getApiKey')),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Routes);

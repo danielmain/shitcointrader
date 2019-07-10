@@ -1,0 +1,61 @@
+{
+  "env": {
+    "node": true,
+    "browser": false,
+    "jest": true,
+    "es6": true
+  },
+  "globals": {
+    "exampleGlobalVariable": true
+  },
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true,
+      "jsx": true,
+      "modules": true
+    },
+    "sourceType": "module"
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended"
+  ],
+  "rules": {
+    "no-console": 0,
+    "no-shadow": 0,
+    "quotes": ["error", "single"],
+    "object-curly-newline": [
+      "error",
+      {
+        "ObjectPattern": {
+          "multiline": true,
+          "minProperties": 6
+        }
+      }
+    ],
+    "indent": [
+      "error",
+      2,
+      {
+        "ignoredNodes": ["JSXElement"]
+      }
+    ],
+    "react/jsx-indent": ["error", 2],
+    "array-bracket-newline": [
+      2,
+      {
+        "multiline": true,
+        "minItems": 3
+      }
+    ],
+    "array-element-newline": [
+      2,
+      {
+        "multiline": true,
+        "minItems": 3
+      }
+    ]
+  },
+  "plugins": ["react"]
+}

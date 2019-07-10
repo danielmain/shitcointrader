@@ -35,7 +35,7 @@ const createWindow = () => {
     height: 1000,
   });
 
-  //BrowserWindow.addDevToolsExtension('/Users/daniel/Library/Application Support/BraveSoftware/Brave-Browser-Dev/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0');
+  BrowserWindow.addDevToolsExtension('/Users/daniel/Library/Application Support/BraveSoftware/Brave-Browser-Dev/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0');
   //BrowserWindow.addDevToolsExtension('/Users/daniel/Library/Application Support/BraveSoftware/Brave-Browser-Dev/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.6.0_0');
 
 
@@ -61,6 +61,16 @@ app.on('ready', async function () {
   createWindow();
 });
 
+process.on('uncaughtException', function (error) {
+  console.log('uncaughtException =====');
+  console.dir(error.code);
+  console.log('=====================');
+  mainWindow.webContents.send(
+    'setStatus', 
+    { error: _.get(error, 'errno', 500), msg: JSON.stringify(error) }
+  );
+});
+
 ipcMain.on('storeApiKey', async (event, keys) => {
   const storeKeysInDb = async (apiKey: string, apiSecret: string) => {
     const setupCollection = DatabaseHandler.getSetupCollection(app);
@@ -80,23 +90,22 @@ ipcMain.on('storeApiKey', async (event, keys) => {
   event.sender.send('setStatus', credentialsStatus);
   if (_.get(credentialsStatus, 'code', false) === 202) {
     const result = await storeKeysInDb(apiKey, apiSecret);
-    !!result ? event.sender.send('storeApiKey', result) : console.error('Cannot store keys in db');
+    result ? event.sender.send('storeApiKey', result) : console.error('Cannot store keys in db');
   } else {
     console.error('Credentials wrong');
   }
 });
 
-ipcMain.on('getApiKey', async (event, ...args) => {
+ipcMain.on('getApiKey', async (event) => {
   let keys = [];
-  const setupCollection = DatabaseHandler.getSetupCollection(app);
   try {
+    const setupCollection = DatabaseHandler.getSetupCollection(app);
+    console.log('Querying database for keys');
     keys = await setupCollection.find({})
-    // console.log('event.sender: ', event.sender);
-    // console.log('keys: ', keys);
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
-  if (!_.isEmpty(keys)){
+  if (_.get(keys, 'apiKey', false)){
     event.sender.send('storeApiKey', keys);
   }
 });
@@ -117,41 +126,3 @@ app.on('activate', () => {
     createWindow();
   }
 });
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
-
-const getBalancePromise = (
-  code,
-  binanceClient,
-) => new Promise((resolve, reject) => binanceClient.balance((error, balances) => {
-  if (error) {
-    resolve(error);
-  }
-  const balance = _.get(
-    balances,
-    `${code.toUpperCase()}.available`,
-    false,
-  );
-
-  if (_.isNumber(balance)) {
-    resolve(false);
-  } else {
-    resolve(true);
-  }
-}));
-
-const checkBinanceCredentials = async (APIKEY, APISECRET) => {
-  const binance = require('node-binance-api')().options({
-    APIKEY,
-    APISECRET,
-    useServerTime: true // If you get timestamp errors, synchronize to server time at startup
-  });
-
-  try {
-    return await getBalancePromise('BTC', binance);
-  } catch (error) {
-    console.error(error);
-    return false;
-  }
-}

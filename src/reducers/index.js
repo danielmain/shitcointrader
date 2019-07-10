@@ -15,7 +15,7 @@ const reducers = (state = {}, action) => {
     console.log('reducers=> GET_APIKEY', action);
     return { 
       ...state,
-      keys: _.get(action, 'key', {})
+      keys: _.get(action, 'keys')
     };
   case 'SET_STATUS':
     console.log('reducers=> SET_STATUS', action);
@@ -25,6 +25,6 @@ const reducers = (state = {}, action) => {
     };
   default:
   	return state;
-  };
+  }
 }
 export default reducers;

@@ -3,9 +3,9 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { send } from 'redux-electron-ipc';
 import type { ReduxStore } from 'redux';
-import { AppRegistry } from 'react-native';
 import { connect } from 'react-redux';
-import { Button, Image, StyleSheet, Text, View } from 'react-native';
+import { Text, Button, AppRegistry, Image, StyleSheet, View } from 'react-native';
+
 import Binance from 'node-binance-api';
 import {
   HashRouter,

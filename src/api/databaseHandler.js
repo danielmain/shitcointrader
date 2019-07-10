@@ -8,11 +8,15 @@ const getDb = (electronApp, fileName) => Datastore.create({
 
 const DatabaseHandler = {
   getSetupCollection: (electronApp): any => {
-  	const setupCollection = getDb(electronApp, 'setup.db');
-  	setupCollection.ensureIndex({ fieldName: 'apiKey', unique: true }, function (err) {
-  		console.error(err);
-    });
-    return setupCollection;
+    try {
+      const setupCollection = getDb(electronApp, 'setup.db');
+      setupCollection.ensureIndex({ fieldName: 'apiKey', unique: true }, function (err) {
+        console.error(err);
+      });
+      return setupCollection;
+    } catch (error) {
+      console.error('ERROR ====>', error);
+    }
   },
   getTradingCollection: (electronApp): any => getDb(electronApp, 'trading.db')
 };
