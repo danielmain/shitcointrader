@@ -11,15 +11,15 @@ export const SET_STATUS = 'SET_STATUS';
  */
 
 export function storeApiKey(event, payload) {
-  console.log('Actions: storeApiKey -> keys', payload)
-  return { type: STORE_APIKEY, payload }
+  console.log('Actions: storeApiKey -> keys', payload);
+  return { type: STORE_APIKEY, payload };
 }
 
-export function getApiKey() {
-  return { type: GET_APIKEY }
+export function getApiKey(event, payload) {
+  return { type: GET_APIKEY, payload };
 }
 
 export function setStatus(event, payload) {
-  console.log('Actions: status -> status', payload)
-  return { type: SET_STATUS, payload }
+  console.log('Actions: status -> status', payload);
+  return { type: SET_STATUS, payload };
 }

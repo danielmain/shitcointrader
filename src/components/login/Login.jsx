@@ -10,9 +10,6 @@ import {
   View,
 } from 'react-native'; // eslint-disable-line
 import _ from 'lodash';
-import Alert from './Alert';
-// import TraderAlert from './TraderAlert.jsx';
-// import { storeApiKey, getApiKey } from '../../actions';
 
 const logoUri = 'images/binance.png';
 
@@ -70,26 +67,26 @@ type LoginProps = {
 };
 
 const Login = (props: LoginProps) => {
+  console.log('TCL: Login -> props', props);
   const [apiKey, setApiKey] = useState(true);
   const [apiSecret, setApiSecret] = useState(true);
 
+  const storeApiKey = _.get(props, 'storeApiKey');
+
   const keys = _.get(props, 'keys', false);
+  const status = _.get(props, 'status.code', { code: 0 });
   if (keys) {
     setApiKey(_.get(keys, 'apiKey'));
     setApiSecret(_.get(keys, 'apiSecret'));
   }
-  const status = _.get(props, 'status');
   console.log('TCL: Login -> status', status);
   // const isValid = _.get(status, 'code', false) === 202;
 
-  const checkAndStoreKeys = () => {
-    props.storeApiKey({ apiKey, apiSecret });
-  };
-
-  if (status) { return <Alert status={status} />; }
+  if (_.get(status, 'msg', false)) {
+    alert(_.get(status, 'msg'));
+  }
   return (
     <View style={styles.app}>
-
       <View style={styles.header}>
         <Image
           accessibilityLabel="React logo"
@@ -117,7 +114,7 @@ const Login = (props: LoginProps) => {
       />
       <TouchableOpacity
         style={styles.submitButton}
-        onPress={checkAndStoreKeys}
+        onPress={() => storeApiKey({ apiKey, apiSecret })}
       >
         <Text style={styles.submitButtonText}> Save credentials </Text>
       </TouchableOpacity>
@@ -129,7 +126,6 @@ const mapStateToProps = state => ({
   ...state,
 });
 const mapDispatchToProps = dispatch => ({
-  getApiKey: () => dispatch(send('getApiKey')),
   storeApiKey: keys => dispatch(send('storeApiKey', keys)),
   setStatus: status => dispatch(send('setStatus', status)),
 });

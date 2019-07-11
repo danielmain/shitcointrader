@@ -8,14 +8,14 @@ const reducers = (state = {}, action) => {
       ...state,
       keys: _.get(action, 'payload', {}),
     };
-  case '@@IPC':
-    console.log('reducers=> IPC', action);
-    return state;
+  // case '@@IPC':
+    // console.log('reducers=> IPC', action);
+    // return state;
   case 'GET_APIKEY':
     console.log('reducers=> GET_APIKEY', action);
     return {
       ...state,
-      keys: _.get(action, 'keys'),
+      keys: _.get(action, 'payload'),
     };
   case 'SET_STATUS':
     console.log('reducers=> SET_STATUS', action);

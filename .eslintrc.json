@@ -6,7 +6,8 @@
     "es6": true
   },
   "globals": {
-    "exampleGlobalVariable": true
+    "exampleGlobalVariable": true,
+    "alert": true
   },
   "parser": "babel-eslint",
   "parserOptions": {
@@ -24,6 +25,7 @@
   ],
   "rules": {
     "no-console": 0,
+    "no-alert": 0,
     "no-shadow": 0,
     "quotes": ["error", "single"],
     "object-curly-newline": [

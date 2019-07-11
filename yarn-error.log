@@ -116,6 +116,7 @@ npm manifest:
       "popper.js": "^1.14.4",
       "pouchdb-adapter-http": "^7.1.1",
       "pouchdb-adapter-memory": "^7.1.1",
+      "prop-types": "^15.7.2",
       "react": "^16.8.6",
       "react-base": "^0.2.0",
       "react-bootstrap": "^1.0.0-beta.9",
