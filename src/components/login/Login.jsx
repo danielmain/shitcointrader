@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { send } from 'redux-electron-ipc';
 import { connect } from 'react-redux';
 import {
@@ -74,10 +74,13 @@ const Login = (props: LoginProps) => {
 
   const keys = _.get(props, 'keys', false);
   const status = _.get(props, 'status.code', { code: 0 });
-  if (keys) {
-    setApiKey(_.get(keys, 'apiKey'));
-    setApiSecret(_.get(keys, 'apiSecret'));
-  }
+
+  useEffect(() => {
+    if (keys) {
+      setApiKey(_.get(keys, 'apiKey'));
+      setApiSecret(_.get(keys, 'apiSecret'));
+    }
+  }, [keys]);
 
   if (_.get(status, 'msg', false)) {
     alert(_.get(status, 'msg'));
