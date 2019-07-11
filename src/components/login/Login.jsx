@@ -67,7 +67,6 @@ type LoginProps = {
 };
 
 const Login = (props: LoginProps) => {
-  console.log('TCL: Login -> props', props);
   const [apiKey, setApiKey] = useState(true);
   const [apiSecret, setApiSecret] = useState(true);
 
@@ -79,8 +78,6 @@ const Login = (props: LoginProps) => {
     setApiKey(_.get(keys, 'apiKey'));
     setApiSecret(_.get(keys, 'apiSecret'));
   }
-  console.log('TCL: Login -> status', status);
-  // const isValid = _.get(status, 'code', false) === 202;
 
   if (_.get(status, 'msg', false)) {
     alert(_.get(status, 'msg'));

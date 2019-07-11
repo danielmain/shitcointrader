@@ -64,9 +64,6 @@ app.on('ready', async () => {
 });
 
 process.on('uncaughtException', (error) => {
-  console.log('uncaughtException =====');
-  console.dir(error.code);
-  console.log('=====================');
   mainWindow.webContents.send(
     'setStatus',
     { error: _.get(error, 'errno', 500), msg: JSON.stringify(error) },
@@ -77,7 +74,7 @@ const storeKeysInDb = async (apiKey: string, apiSecret: string) => {
   try {
     await DatabaseHandler.cleanSetup(app);
   } catch (error) {
-    console.log('ERROR: ', error);
+    console.error(error);
   }
   const setupCollection = await DatabaseHandler.getSetupCollection(app);
   try {
@@ -100,39 +97,29 @@ ipcMain.on('storeApiKey', async (event, keys) => {
     const credentialsStatus = await BinanceHandler.checkCredentials(apiKey, apiSecret);
     if (_.get(credentialsStatus, 'code', false) === 200) {
       const result = await storeKeysInDb(apiKey, apiSecret);
-      console.log('TCL: result', result);
       if (!result) {
         event.sender.send('setStatus', { code: 500, msg: 'Cannot store keys in db' });
       } else {
-        setTimeout(() => event.sender.send('setStatus', { code: 201, msg: 'New Keys stored and validated' }), 3000);
+        setTimeout(() => event.sender.send('setStatus', { code: 201, msg: 'New Keys stored and validated' }), 2000);
       }
     } else {
-      console.error('Credentials wrong');
       event.sender.send('setStatus', credentialsStatus);
     }
   }
 });
 
-let keys;
 ipcMain.on('getApiKey', async (event) => {
   try {
-    if (_.isEmpty(keys)) {
-      const setupCollection = await DatabaseHandler.getSetupCollection(app);
-      console.log('Querying database for keys');
-      keys = await setupCollection.find({});
-      console.log('TCL: keys', keys);
+    const setupCollection = await DatabaseHandler.getSetupCollection(app);
+    const keys = await setupCollection.find({});
+    if (_.get(keys, '[0].apiKey', false)) {
+      event.sender.send('setStatus', { code: 202, msg: 'Getting keys ok' });
+      event.sender.send('getApiKey', keys[0]);
+    } else {
+      event.sender.send('setStatus', { code: 404, msg: 'No Api Keys stored' });
     }
   } catch (error) {
-    console.log('TCL: error', error);
     event.sender.send('setStatus', { code: 500, msg: JSON.stringify(error) });
-  }
-  if (_.get(keys, '[0].apiKey', false)) {
-    // console.log('TCL: calling storeApiKey', keys);
-    event.sender.send('setStatus', { code: 202, msg: 'Getting keys ok' });
-    event.sender.send('getApiKey', keys[0]);
-  } else {
-    console.log('TCL: keys', keys);
-    event.sender.send('setStatus', { code: 404, msg: 'No Api Keys stored' });
   }
 });
 

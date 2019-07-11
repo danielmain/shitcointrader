@@ -30,19 +30,14 @@ const needLogin = (apiKey, statusCode) => {
 };
 
 const Routes = (props: RoutesProps) => {
-  console.log('TCL: Routes -> props', props);
   const { status } = props;
   const statusCode = _.get(props, 'status.code', false);
   const apiKey = _.get(props, 'keys.apiKey', false);
   const getApiKey = _.get(props, 'getApiKey', {});
 
   useEffect(() => {
-    console.log('======> TCL: Routes -> useEffect');
     if (!apiKey && !_.includes([500, 404], statusCode)) {
-      console.log(`STATUS: ${statusCode} Calling getApiKey ...`);
       getApiKey();
-    } else {
-      console.log(`apiKey: ${apiKey} and statusCode: ${statusCode}`);
     }
   }, [status]);
 
