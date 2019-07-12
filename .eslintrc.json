@@ -28,6 +28,7 @@
     "no-alert": 0,
     "no-shadow": 0,
     "quotes": ["error", "single"],
+    "react/default-props-match-prop-types": ["error", { "allowRequiredDefaults": true }],
     "object-curly-newline": [
       "error",
       {

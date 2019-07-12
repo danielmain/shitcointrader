@@ -1,62 +1,72 @@
 import React, { useState, useEffect } from 'react';
+import clsx from 'clsx';
 import { send } from 'redux-electron-ipc';
 import { connect } from 'react-redux';
-import {
-  Text,
-  TextInput,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native'; // eslint-disable-line
+import { makeStyles } from '@material-ui/core/styles';
+import Modal from '@material-ui/core/Modal';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import SaveIcon from '@material-ui/icons/Save';
+import CancelIcon from '@material-ui/icons/Cancel';
+import Avatar from '@material-ui/core/Avatar';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
 import _ from 'lodash';
 
 const logoUri = 'images/binance.png';
 
-const styles = StyleSheet.create({
-  app: {
-    marginHorizontal: 'auto',
-    maxWidth: 1500,
+const rand = () => Math.round(Math.random() * 20) - 10;
+
+const getModalStyle = () => {
+  const top = 50 + rand();
+  const left = 50 + rand();
+
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    transform: `translate(-${top}%, -${left}%)`,
+  };
+};
+
+const useStyles = makeStyles(theme => ({
+  paper: {
+    position: 'absolute',
+    width: 700,
+    backgroundColor: theme.palette.background.paper,
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 4),
+    outline: 'none',
   },
-  logo: {
-    height: 80,
+  bigAvatar: {
+    margin: 10,
+    width: 60,
+    height: 60,
   },
-  header: {
-    padding: 20,
+  textField: {
+    width: '100%',
+    marginTop: theme.spacing(1),
   },
-  title: {
-    fontWeight: 'bold',
-    fontSize: '1.5rem',
-    color: '#7a42f4',
-    marginVertical: '1em',
-    textAlign: 'center',
+  button: {
+    marginTop: theme.spacing(5),
   },
-  input: {
-    margin: 15,
-    height: 40,
-    width: 530,
-    padding: 10,
-    borderColor: '#7a42f4',
-    borderWidth: 1,
+  buttonLeft: {
+    marginRight: theme.spacing(1),
   },
-  submitButton: {
-    backgroundColor: '#7a42f4',
-    padding: 10,
-    margin: 15,
-    height: 40,
+  buttonRight: {
+    marginLeft: theme.spacing(1),
   },
-  submitButtonText: {
-    color: 'white',
-    textAlign: 'center',
+  rightIcon: {
+    marginLeft: theme.spacing(1),
   },
-  code: {
-    fontFamily: 'monospace, monospace',
-  },
-});
+}));
 
 type LoginProps = {
   storeApiKey: Function,
-  keys: {
+  handleClose: Function,
+  open: boolean,
+  keys?: {
     apiKey: string,
     apiSecret: string,
   },
@@ -67,13 +77,16 @@ type LoginProps = {
 };
 
 const Login = (props: LoginProps) => {
+  const classes = useStyles();
+  const [modalStyle] = React.useState(getModalStyle);
+
   const [apiKey, setApiKey] = useState(true);
   const [apiSecret, setApiSecret] = useState(true);
-
   const storeApiKey = _.get(props, 'storeApiKey');
-
   const keys = _.get(props, 'keys', false);
   const status = _.get(props, 'status.code', { code: 0 });
+  const open = _.get(props, 'open', true);
+  const handleClose = _.get(props, 'handleClose', true);
 
   useEffect(() => {
     if (keys) {
@@ -86,39 +99,49 @@ const Login = (props: LoginProps) => {
     alert(_.get(status, 'msg'));
   }
   return (
-    <View style={styles.app}>
-      <View style={styles.header}>
-        <Image
-          accessibilityLabel="React logo"
-          source={{ uri: logoUri }}
-          resizeMode="contain"
-          style={styles.logo}
+    <Modal
+      aria-labelledby="simple-modal-title"
+      aria-describedby="simple-modal-description"
+      open={open}
+      onClose={handleClose}
+    >
+      <Card style={modalStyle} className={classes.paper}>
+        <CardHeader
+          avatar={(
+            <Avatar alt="Remy Sharp" src={logoUri} className={classes.bigAvatar} />
+          )}
+          title="Binance Keys"
+          subheader="Your keys never leave your computer"
         />
-        <Text style={styles.title}>Binance Api Keys</Text>
-      </View>
-      <TextInput
-        style={styles.input}
-        underlineColorAndroid="transparent"
-        placeholder=" ApiKey"
-        placeholderTextColor="#9a73ef"
-        onChangeText={setApiKey}
-        value={_.get(keys, 'apiKey')}
-      />
-      <TextInput
-        style={styles.input}
-        underlineColorAndroid="transparent"
-        placeholder=" ApiSecret"
-        placeholderTextColor="#9a73ef"
-        onChangeText={setApiSecret}
-        value={_.get(keys, 'apiSecret')}
-      />
-      <TouchableOpacity
-        style={styles.submitButton}
-        onPress={() => storeApiKey({ apiKey, apiSecret })}
-      >
-        <Text style={styles.submitButtonText}> Save credentials </Text>
-      </TouchableOpacity>
-    </View>
+        <form noValidate autoComplete="off">
+          <TextField
+            required
+            id="outlined-apikey-input"
+            label="ApiKey"
+            className={classes.textField}
+            margin="normal"
+            variant="outlined"
+          />
+          <TextField
+            required
+            id="outlined-apisecret-input"
+            label="ApiSecret"
+            className={classes.textField}
+            type="password"
+            margin="normal"
+            variant="outlined"
+          />
+          <Button variant="contained" size="large" className={clsx(classes.button, classes.buttonLeft)}>
+            <CancelIcon className={clsx(classes.rightIcon)} />
+              Cancel
+          </Button>
+          <Button variant="contained" size="large" className={clsx(classes.button, classes.buttonRight)}>
+            <SaveIcon className={clsx(classes.rightIcon)} />
+              Save
+          </Button>
+        </form>
+      </Card>
+    </Modal>
   );
 };
 
