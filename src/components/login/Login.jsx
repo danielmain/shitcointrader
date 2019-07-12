@@ -66,7 +66,7 @@ type LoginProps = {
   storeApiKey: Function,
   handleClose: Function,
   open: boolean,
-  keys?: {
+  keys: {
     apiKey: string,
     apiSecret: string,
   },
@@ -82,22 +82,26 @@ const Login = (props: LoginProps) => {
 
   const [apiKey, setApiKey] = useState(true);
   const [apiSecret, setApiSecret] = useState(true);
-  const storeApiKey = _.get(props, 'storeApiKey');
-  const keys = _.get(props, 'keys', false);
-  const status = _.get(props, 'status.code', { code: 0 });
-  const open = _.get(props, 'open', true);
-  const handleClose = _.get(props, 'handleClose', true);
+
+  const { keys, status, open, handleClose, storeApiKey } = props;
 
   useEffect(() => {
     if (keys) {
       setApiKey(_.get(keys, 'apiKey'));
       setApiSecret(_.get(keys, 'apiSecret'));
     }
-  }, [keys]);
+    // if (_.get(status, 'msg', false)) {
+    //   alert(_.get(status, 'msg'));
+    // }
+  }, [keys, status]);
 
-  if (_.get(status, 'msg', false)) {
-    alert(_.get(status, 'msg'));
-  }
+  const isKeyValid = () => (
+    apiKey.length < 63
+    || apiSecret.length < 63
+    || _.isEmpty(apiKey)
+    || _.isEmpty(apiSecret));
+
+
   return (
     <Modal
       aria-labelledby="simple-modal-title"
@@ -121,6 +125,8 @@ const Login = (props: LoginProps) => {
             className={classes.textField}
             margin="normal"
             variant="outlined"
+            onChange={e => setApiKey(e.target.value)}
+            error={apiKey.length < 63}
           />
           <TextField
             required
@@ -130,12 +136,22 @@ const Login = (props: LoginProps) => {
             type="password"
             margin="normal"
             variant="outlined"
+            onChange={e => setApiSecret(e.target.value)}
+            error={apiSecret.length < 63}
           />
           <Button variant="contained" size="large" className={clsx(classes.button, classes.buttonLeft)}>
             <CancelIcon className={clsx(classes.rightIcon)} />
               Cancel
           </Button>
-          <Button variant="contained" size="large" className={clsx(classes.button, classes.buttonRight)}>
+          <Button
+            variant="contained"
+            size="large"
+            className={clsx(classes.button, classes.buttonRight)}
+            onClick={() => {
+              storeApiKey(apiKey, apiSecret);
+            }}
+            disabled={isKeyValid()}
+          >
             <SaveIcon className={clsx(classes.rightIcon)} />
               Save
           </Button>
