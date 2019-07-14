@@ -5,13 +5,14 @@ import { createMuiTheme, makeStyles, MuiThemeProvider } from '@material-ui/core/
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import AddIcon from '@material-ui/icons/Add';
+import Fab from '@material-ui/core/Fab';
 import lime from '@material-ui/core/colors/lime';
 import _ from 'lodash';
 import Login from '../login';
+import Trade from '../trade';
 
 const theme = createMuiTheme({
   palette: {
@@ -32,8 +33,14 @@ const useStyles = makeStyles(theme => ({
   title: {
     flexGrow: 1,
   },
+  margin: {
+    margin: theme.spacing(1),
+  },
+  tradingContainer: {
+    margin: theme.spacing(1),
+    padding: theme.spacing(3, 2),
+  },
 }));
-
 
 type LoginProps = {
   keys: {
@@ -46,6 +53,10 @@ type LoginProps = {
   }
 };
 
+const addTrade = () => {
+
+};
+
 const Home = (props: LoginProps) => {
   const classes = useStyles(theme);
   const [open, setOpen] = React.useState(false);
@@ -54,6 +65,7 @@ const Home = (props: LoginProps) => {
   const keys = _.get(props, 'keys', false);
   const statusCode = _.get(props, 'status.code', false);
   const status = _.get(props, 'status.code', { code: 0 });
+
 
   useEffect(() => {
     if (!_.get(props, 'keys.apiKey', false) && !_.includes([500, 404], statusCode)) {
@@ -75,9 +87,6 @@ const Home = (props: LoginProps) => {
         <CssBaseline />
         <AppBar position="static">
           <Toolbar>
-            <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="Menu">
-              <MenuIcon />
-            </IconButton>
             <Typography variant="h6" className={classes.title}>
             Shitcoin Trader
             </Typography>
@@ -85,6 +94,14 @@ const Home = (props: LoginProps) => {
           </Toolbar>
         </AppBar>
         <Login open={open} keys={keys} handleClose={() => setOpen(false)} />
+        <div>
+          <Fab size="medium" color="secondary" aria-label="Add" className={classes.margin}>
+            <AddIcon />
+          </Fab>
+        </div>
+        <div className={classes.tradingContainer}>
+          <Trade />
+        </div>
       </div>
     </MuiThemeProvider>
   );
