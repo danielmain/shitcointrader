@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { send } from 'redux-electron-ipc';
 import { connect } from 'react-redux';
-import { makeStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
+import { createMuiTheme, makeStyles, MuiThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -10,9 +9,19 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import lime from '@material-ui/core/colors/lime';
 import _ from 'lodash';
 import Login from '../login';
 
+const theme = createMuiTheme({
+  palette: {
+    type: 'dark',
+    primary: lime,
+    secondary: {
+      main: '#4527a0',
+    },
+  },
+});
 const useStyles = makeStyles(theme => ({
   root: {
     flexGrow: 1,
@@ -38,7 +47,7 @@ type LoginProps = {
 };
 
 const Home = (props: LoginProps) => {
-  const classes = useStyles();
+  const classes = useStyles(theme);
   const [open, setOpen] = React.useState(false);
 
   const getApiKey = _.get(props, 'getApiKey');
@@ -61,21 +70,23 @@ const Home = (props: LoginProps) => {
   }
 
   return (
-    <div className={classes.root}>
-      <CssBaseline />
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="Menu">
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" className={classes.title}>
+    <MuiThemeProvider theme={theme}>
+      <div className={classes.root}>
+        <CssBaseline />
+        <AppBar position="static">
+          <Toolbar>
+            <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="Menu">
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" className={classes.title}>
             Shitcoin Trader
-          </Typography>
-          <Button variant="contained" onClick={() => setOpen(true)}>Binance Keys</Button>
-        </Toolbar>
-      </AppBar>
-      <Login open={open} keys={keys} handleClose={() => setOpen(false)} />
-    </div>
+            </Typography>
+            <Button variant="contained" onClick={() => setOpen(true)}>Binance Keys</Button>
+          </Toolbar>
+        </AppBar>
+        <Login open={open} keys={keys} handleClose={() => setOpen(false)} />
+      </div>
+    </MuiThemeProvider>
   );
 };
 
