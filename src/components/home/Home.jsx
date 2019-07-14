@@ -4,19 +4,24 @@ import { connect } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import IconButton from '@material-ui/core/IconButton';
+import MenuIcon from '@material-ui/icons/Menu';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 import _ from 'lodash';
 import Login from '../login';
 
 const useStyles = makeStyles(theme => ({
-  container: {
-    display: 'flex',
-    flexWrap: 'wrap',
+  root: {
+    flexGrow: 1,
   },
-  dense: {
-    marginTop: theme.spacing(2),
+  menuButton: {
+    marginRight: theme.spacing(2),
   },
-  menu: {
-    width: 200,
+  title: {
+    flexGrow: 1,
   },
 }));
 
@@ -56,12 +61,21 @@ const Home = (props: LoginProps) => {
   }
 
   return (
-    <React.Fragment>
+    <div className={classes.root}>
       <CssBaseline />
-      <Container fixed className={classes.container}>
-        <Login open={open} keys={keys} handleClose={() => setOpen(false)} />
-      </Container>
-    </React.Fragment>
+      <AppBar position="static">
+        <Toolbar>
+          <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="Menu">
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" className={classes.title}>
+            Shitcoin Trader
+          </Typography>
+          <Button variant="contained" onClick={() => setOpen(true)}>Binance Keys</Button>
+        </Toolbar>
+      </AppBar>
+      <Login open={open} keys={keys} handleClose={() => setOpen(false)} />
+    </div>
   );
 };
 

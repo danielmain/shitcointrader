@@ -139,7 +139,12 @@ const Login = (props: LoginProps) => {
             onChange={e => setApiSecret(e.target.value)}
             error={apiSecret.length < 63}
           />
-          <Button variant="contained" size="large" className={clsx(classes.button, classes.buttonLeft)}>
+          <Button
+            variant="contained"
+            size="large"
+            className={clsx(classes.button, classes.buttonLeft)}
+            onClick={handleClose}
+          >
             <CancelIcon className={clsx(classes.rightIcon)} />
               Cancel
           </Button>
