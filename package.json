@@ -129,7 +129,6 @@
     "electron-redux-devtools": "firejune/electron-redux-devtools",
     "eslint": "^6.0.1",
     "eslint-config-airbnb": "^17.1.1",
-    "eslint-config-prettier": "^6.0.0",
     "eslint-import-resolver-webpack": "^0.11.1",
     "eslint-plugin-compat": "^3.2.0",
     "eslint-plugin-flowtype": "^3.11.1",
@@ -141,7 +140,6 @@
     "flow": "^0.2.3",
     "flow-bin": "^0.102.0",
     "flow-watch": "^1.1.4",
-    "jest": "^24.8.0",
-    "prettier-eslint": "^9.0.0"
+    "jest": "^24.8.0"
   }
 }
