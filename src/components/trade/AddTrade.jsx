@@ -87,6 +87,10 @@ type AddTradeProps = {
   },
 };
 
+const handleChange = (e) => {
+  console.log(e);
+};
+
 const AddTrade = (props: AddTradeProps) => {
   const classes = useStyles();
   const [modalStyle] = React.useState(getModalStyle);
@@ -96,24 +100,7 @@ const AddTrade = (props: AddTradeProps) => {
     name: 'hai',
   });
 
-  const { keys, status, open, handleClose, storeApiKey } = props;
-
-  useEffect(() => {
-    if (keys) {
-      setApiKey(_.get(keys, 'apiKey'));
-      setApiSecret(_.get(keys, 'apiSecret'));
-    }
-    // if (_.get(status, 'msg', false)) {
-    //   alert(_.get(status, 'msg'));
-    // }
-  }, [keys, status]);
-
-  const isKeyValid = () => (
-    apiKey.length < 63
-    || apiSecret.length < 63
-    || _.isEmpty(apiKey)
-    || _.isEmpty(apiSecret));
-
+  const { status, open, handleClose } = props;
 
   return (
     <Modal
@@ -157,9 +144,8 @@ const AddTrade = (props: AddTradeProps) => {
             size="large"
             className={clsx(classes.button, classes.buttonRight)}
             onClick={() => {
-              storeApiKey(apiKey, apiSecret);
+
             }}
-            disabled={isKeyValid()}
           >
             <SaveIcon className={clsx(classes.rightIcon)} />
               Save

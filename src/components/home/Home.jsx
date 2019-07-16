@@ -12,7 +12,7 @@ import Fab from '@material-ui/core/Fab';
 import lime from '@material-ui/core/colors/lime';
 import _ from 'lodash';
 import Login from '../login';
-import { TradeStatus } from '../trade';
+import { TradeStatus, AddTrade } from '../trade';
 
 const theme = createMuiTheme({
   palette: {
@@ -53,13 +53,10 @@ type LoginProps = {
   }
 };
 
-const addTrade = () => {
-
-};
-
 const Home = (props: LoginProps) => {
   const classes = useStyles(theme);
-  const [open, setOpen] = React.useState(false);
+  const [openLogin, setOpenLogin] = React.useState(false);
+  const [openAddTrade, setOpenAddTrade] = React.useState(false);
 
   const getApiKey = _.get(props, 'getApiKey');
   const keys = _.get(props, 'keys', false);
@@ -70,7 +67,7 @@ const Home = (props: LoginProps) => {
     if (!_.get(props, 'keys.apiKey', false) && !_.includes([500, 404], statusCode)) {
       getApiKey();
     } else if (!_.get(props, 'keys.apiKey', false) && _.includes([500, 404], statusCode)) {
-      setOpen(true);
+      setOpenLogin(true);
     } else {
       console.log(`apiKey: ${_.get(props, 'keys.apiKey', false)} | statusCode: ${statusCode}`);
     }
@@ -89,12 +86,19 @@ const Home = (props: LoginProps) => {
             <Typography variant="h6" className={classes.title}>
             Shitcoin Trader
             </Typography>
-            <Button variant="contained" onClick={() => setOpen(true)}>Binance Keys</Button>
+            <Button variant="contained" onClick={() => setOpenLogin(true)}>Binance Keys</Button>
           </Toolbar>
         </AppBar>
-        <Login open={open} keys={keys} handleClose={() => setOpen(false)} />
+        <Login open={openLogin} keys={keys} handleClose={() => setOpenLogin(false)} />
+        <AddTrade open={openAddTrade} handleClose={() => openAddTrade(false)} />
         <div>
-          <Fab size="medium" color="secondary" aria-label="Add" className={classes.margin}>
+          <Fab
+            size="medium"
+            color="secondary"
+            aria-label="Add"
+            className={classes.margin}
+            onClick={() => setOpenAddTrade(true)}
+          >
             <AddIcon />
           </Fab>
         </div>
