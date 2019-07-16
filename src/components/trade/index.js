@@ -1,3 +1,4 @@
-import Trade from './Trade.jsx';
+import TradeStatus from './TradeStatus';
+import AddTrade from './AddTrade';
 
-export default Trade;
+export { TradeStatus, AddTrade };

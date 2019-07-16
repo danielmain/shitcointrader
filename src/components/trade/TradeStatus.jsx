@@ -37,7 +37,7 @@ const rows = [
   createData('Gingerbread', 356, 16.0, 49, 3.9),
 ];
 
-const Trade = (props) => {
+const TradeStatus = (props) => {
   const classes = useStyles();
   const status = _.get(props, 'status.code', { code: 0 });
 
@@ -88,4 +88,4 @@ const mapDispatchToProps = dispatch => ({
   getApiKey: () => dispatch(send('getApiKey')),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Trade);
+export default connect(mapStateToProps, mapDispatchToProps)(TradeStatus);

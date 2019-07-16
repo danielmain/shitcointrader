@@ -310,6 +310,7 @@ const sellCoin = async (
 const BinanceHandler = {
   getCoinPrice,
   getCoinBalance,
+  getBalancePromise,
   caclulatePotentialQuantity,
   getStopLossPrice,
   checkCredentials,

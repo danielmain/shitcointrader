@@ -8,8 +8,14 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import SaveIcon from '@material-ui/icons/Save';
 import CancelIcon from '@material-ui/icons/Cancel';
-import Avatar from '@material-ui/core/Avatar';
-import Card from '@material-ui/core/Card';
+import Input from '@material-ui/core/Input';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import FilledInput from '@material-ui/core/FilledInput';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select'; import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import _ from 'lodash';
 
@@ -58,9 +64,16 @@ const useStyles = makeStyles(theme => ({
   rightIcon: {
     marginLeft: theme.spacing(1),
   },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
+  selectEmpty: {
+    marginTop: theme.spacing(2),
+  },
 }));
 
-type LoginProps = {
+type AddTradeProps = {
   storeApiKey: Function,
   handleClose: Function,
   open: boolean,
@@ -71,15 +84,17 @@ type LoginProps = {
   status: {
     code: string,
     msg: string,
-  }
+  },
 };
 
-const Login = (props: LoginProps) => {
+const AddTrade = (props: AddTradeProps) => {
   const classes = useStyles();
   const [modalStyle] = React.useState(getModalStyle);
 
-  const [apiKey, setApiKey] = useState(true);
-  const [apiSecret, setApiSecret] = useState(true);
+  const [values, setValues] = useState({
+    age: '',
+    name: 'hai',
+  });
 
   const { keys, status, open, handleClose, storeApiKey } = props;
 
@@ -88,6 +103,9 @@ const Login = (props: LoginProps) => {
       setApiKey(_.get(keys, 'apiKey'));
       setApiSecret(_.get(keys, 'apiSecret'));
     }
+    // if (_.get(status, 'msg', false)) {
+    //   alert(_.get(status, 'msg'));
+    // }
   }, [keys, status]);
 
   const isKeyValid = () => (
@@ -106,34 +124,25 @@ const Login = (props: LoginProps) => {
     >
       <Card style={modalStyle} className={classes.paper}>
         <CardHeader
-          avatar={(
-            <Avatar alt="Remy Sharp" src={logoUri} className={classes.bigAvatar} />
-          )}
-          title="Binance Keys"
-          subheader="Your keys never leave your computer"
+          title="Buy shitcoin"
+          subheader="Set the variable stoploss"
         />
         <form noValidate autoComplete="off">
-          <TextField
-            required
-            id="outlined-apikey-input"
-            label="ApiKey"
-            className={classes.textField}
-            margin="normal"
-            variant="outlined"
-            onChange={e => setApiKey(e.target.value)}
-            error={apiKey.length < 63}
-          />
-          <TextField
-            required
-            id="outlined-apisecret-input"
-            label="ApiSecret"
-            className={classes.textField}
-            type="password"
-            margin="normal"
-            variant="outlined"
-            onChange={e => setApiSecret(e.target.value)}
-            error={apiSecret.length < 63}
-          />
+          <FormControl className={classes.formControl}>
+            <InputLabel htmlFor="age-simple">Age</InputLabel>
+            <Select
+              value={values.age}
+              onChange={handleChange}
+              inputProps={{
+                name: 'age',
+                id: 'age-simple',
+              }}
+            >
+              <MenuItem value={10}>Ten</MenuItem>
+              <MenuItem value={20}>Twenty</MenuItem>
+              <MenuItem value={30}>Thirty</MenuItem>
+            </Select>
+          </FormControl>
           <Button
             variant="contained"
             size="large"
@@ -169,4 +178,4 @@ const mapDispatchToProps = dispatch => ({
   setStatus: status => dispatch(send('setStatus', status)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default connect(mapStateToProps, mapDispatchToProps)(AddTrade);

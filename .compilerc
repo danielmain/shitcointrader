@@ -1,36 +1,69 @@
 {
-  "env": {
-    "development": {
-      "application/javascript": {
-        "presets": [
-          ["env", { "targets": { "electron": "1.6.0" } }],
-          "react",
-          "flow"
-        ],
-        "plugins": ["transform-async-to-generator", "transform-es2015-classes", "transform-object-rest-spread", ["module-resolver", {
-            "alias": {
-              "^react-native$": "react-native-web"
-            }
-          }]
-        ],
-        "sourceMaps": "inline"
-      }
-    },
-    "production": {
-      "application/javascript": {
-        "presets": [
-          ["env", { "targets": { "electron": "1.6.0" } }],
-          "react",
-          "flow"
-        ],
-        "plugins": ["transform-async-to-generator", "transform-es2015-classes", "transform-object-rest-spread", ["module-resolver", {
-            "alias": {
-              "^react-native$": "react-native-web"
-            }
-          }]
-        ],
-        "sourceMaps": "none"
-      }
-    }
+  "env":{
+     "development":{
+        "application/javascript":{
+           "presets":[
+              [
+                 "env",
+                 {
+                    "targets":{
+                       "electron":"1.6.0"
+                    },
+                    "test":{
+                       "plugins":[
+                          "@babel/plugin-transform-runtime"
+                       ]
+                    }
+                 }
+              ],
+              "react",
+              "flow"
+           ],
+           "plugins":[
+              "transform-async-to-generator",
+              "transform-es2015-classes",
+              "transform-object-rest-spread",
+              [
+                 "module-resolver",
+                 {
+                    "alias":{
+                       "^react-native$":"react-native-web"
+                    }
+                 }
+              ]
+           ],
+           "sourceMaps":"inline"
+        }
+     },
+     "production":{
+        "application/javascript":{
+           "presets":[
+              [
+                 "env",
+                 {
+                    "targets":{
+                       "electron":"1.6.0"
+                    }
+                 }
+              ],
+              "react",
+              "flow"
+           ],
+           "plugins":[
+              "transform-async-to-generator",
+              "transform-es2015-classes",
+              "transform-object-rest-spread",
+              [
+                 "module-resolver",
+                 {
+                    "alias":{
+                       "^react-native$":"react-native-web"
+                    }
+                 }
+              ]
+           ],
+           "sourceMaps":"none"
+        }
+     }
   }
 }

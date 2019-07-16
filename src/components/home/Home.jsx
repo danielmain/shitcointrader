@@ -12,7 +12,7 @@ import Fab from '@material-ui/core/Fab';
 import lime from '@material-ui/core/colors/lime';
 import _ from 'lodash';
 import Login from '../login';
-import Trade from '../trade';
+import { TradeStatus } from '../trade';
 
 const theme = createMuiTheme({
   palette: {
@@ -66,7 +66,6 @@ const Home = (props: LoginProps) => {
   const statusCode = _.get(props, 'status.code', false);
   const status = _.get(props, 'status.code', { code: 0 });
 
-
   useEffect(() => {
     if (!_.get(props, 'keys.apiKey', false) && !_.includes([500, 404], statusCode)) {
       getApiKey();
@@ -100,7 +99,7 @@ const Home = (props: LoginProps) => {
           </Fab>
         </div>
         <div className={classes.tradingContainer}>
-          <Trade />
+          <TradeStatus />
         </div>
       </div>
     </MuiThemeProvider>
