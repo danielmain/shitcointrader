@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import createIpc from 'redux-electron-ipc';
 import {
@@ -8,6 +9,7 @@ import {
 } from 'redux';
 import Routes from './components/routes';
 import reducers from './reducers';
+import * as serviceWorker from './serviceWorker';
 import {
   storeApiKey,
   getApiKey,
@@ -19,12 +21,19 @@ const ipc = createIpc({
   getApiKey,
   setStatus,
 });
+
 const store = createStore(reducers, applyMiddleware(ipc));
 
-const App = () => (
-  <Provider store={store}>
-    <Routes />
-  </Provider>
-);
+const root = document.getElementById('Main');
+if (root !== null) {
+  const render = () => {
+    ReactDOM.render(
+      <Provider store={store}>
+        <Routes />
+      </Provider>, root,
+    );
+  };
+  render();
+}
 
-export default App;
+serviceWorker.unregister();

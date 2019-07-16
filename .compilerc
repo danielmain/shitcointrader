@@ -22,7 +22,7 @@
            "plugins":[
               "transform-async-to-generator",
               "transform-es2015-classes",
-              "transform-object-rest-spread",
+              "transform-object-rest-spread"
            ],
            "sourceMaps":"inline"
         }
@@ -44,7 +44,7 @@
            "plugins":[
               "transform-async-to-generator",
               "transform-es2015-classes",
-              "transform-object-rest-spread",
+              "transform-object-rest-spread"
            ],
            "sourceMaps":"none"
         }

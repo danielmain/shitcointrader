@@ -31,7 +31,7 @@
       },
       "electronPackagerConfig": {
         "packageManager": "yarn",
-        "executableName": "electron-react-example",
+        "executableName": "shitcointrader",
         "icon": "./icon.svg"
       },
       "electronWinstallerConfig": {
@@ -103,7 +103,7 @@
     "react-redux": "^7.1.0",
     "react-router": "^5.0.1",
     "react-router-dom": "^5.0.1",
-    "redux": "^4.0.1",
+    "redux": "^4.0.4",
     "redux-electron-ipc": "^1.2.0",
     "rxjs": "^6.4.0"
   },
@@ -138,6 +138,7 @@
     "eslint_d": "^8.0.0",
     "flow": "^0.2.3",
     "flow-bin": "^0.102.0",
+    "flow-typed": "^2.6.0",
     "flow-watch": "^1.1.4",
     "jest": "^24.8.0"
   }
