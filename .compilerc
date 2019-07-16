@@ -23,14 +23,6 @@
               "transform-async-to-generator",
               "transform-es2015-classes",
               "transform-object-rest-spread",
-              [
-                 "module-resolver",
-                 {
-                    "alias":{
-                       "^react-native$":"react-native-web"
-                    }
-                 }
-              ]
            ],
            "sourceMaps":"inline"
         }
@@ -53,14 +45,6 @@
               "transform-async-to-generator",
               "transform-es2015-classes",
               "transform-object-rest-spread",
-              [
-                 "module-resolver",
-                 {
-                    "alias":{
-                       "^react-native$":"react-native-web"
-                    }
-                 }
-              ]
            ],
            "sourceMaps":"none"
         }

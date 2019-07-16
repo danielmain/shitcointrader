@@ -1,5 +1,7 @@
 [ignore]
-
+<PROJECT_ROOT>/node_modules/*
+<PROJECT_ROOT>/data
+<PROJECT_ROOT>/out
 [include]
 
 [libs]
@@ -7,7 +9,5 @@
 [lints]
 
 [options]
-module.name_mapper='^react-native$' -> 'react-native-web'
-module.name_mapper='^native-base$' -> 'native-base-web'
 
 [strict]
