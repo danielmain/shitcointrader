@@ -96,7 +96,6 @@ const Login = (props: LoginProps) => {
     || _.isEmpty(apiKey)
     || _.isEmpty(apiSecret));
 
-
   return (
     <Modal
       aria-labelledby="simple-modal-title"
@@ -149,6 +148,7 @@ const Login = (props: LoginProps) => {
             className={clsx(classes.button, classes.buttonRight)}
             onClick={() => {
               storeApiKey(apiKey, apiSecret);
+              if (isKeyValid) handleClose();
             }}
             disabled={isKeyValid()}
           >

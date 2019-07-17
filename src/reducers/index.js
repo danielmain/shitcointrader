@@ -23,6 +23,12 @@ const reducers = (state = {}, action) => {
       ...state,
       status: _.get(action, 'payload', {}),
     };
+  case 'GET_BALANCE':
+    console.log('reducers=> GET_BALANCE', action);
+    return {
+      ...state,
+      balance: _.get(action, 'payload', {}),
+    };
   default:
     return state;
   }

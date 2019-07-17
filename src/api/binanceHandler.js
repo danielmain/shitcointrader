@@ -36,12 +36,13 @@ const getCoinBalance = async (
   round: boolean,
   precision: number,
 ) => {
+  console.log('Aaaaaaaaaaaaaaaaaaaa');
+  return 10;
   const balances = await getBalancePromise(
     code.toUpperCase(),
     binanceClient,
   );
   const balanceExactNumber = _.toNumber(balances);
-  console.log('TCL: balanceExactNumber', balanceExactNumber);
   if (round) {
     return _.floor(balanceExactNumber, precision);
   }
@@ -62,6 +63,19 @@ const checkCredentials = async (APIKEY: string, APISECRET: string) => {
     return _.isEmpty(balance)
       ? { code: 500, msg: 'Error getting balance' }
       : { code: 200, msg: 'Credentials ok' };
+  } catch (error) {
+    const errorObject = JSON.parse(_.get(error, 'body', {}));
+    return errorObject;
+  }
+};
+
+const getBinanceClient = async (APIKEY: string, APISECRET: string) => {
+  try {
+    return require('node-binance-api')().options({
+      APIKEY,
+      APISECRET,
+      useServerTime: true,
+    });
   } catch (error) {
     const errorObject = JSON.parse(_.get(error, 'body', {}));
     return errorObject;
@@ -314,6 +328,7 @@ const BinanceHandler = {
   caclulatePotentialQuantity,
   getStopLossPrice,
   checkCredentials,
+  getBinanceClient,
 };
 
 export default BinanceHandler;

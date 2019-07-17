@@ -19,13 +19,15 @@ test('Get BTC/TUSD Price', async () => {
 });
 
 test('Get caclulatePotentialQuantity of BTC', async () => {
-  const usdtBalance = await BinanceHandler.getCoinBalance(
+  const btcBalance = await BinanceHandler.getCoinBalance(
     binanceClient,
-    'USDT',
+    'BTC',
     true,
-    1,
+    5,
   );
-  expect(usdtBalance).not.toBeUndefined();
+  expect(btcBalance).not.toBeLessThan(0.01);
+
+  expect(btcBalance).not.toBeUndefined();
   const coinPriceInUsdt = await BinanceHandler.getCoinPrice(
     'BTC',
     'USDT',
@@ -33,7 +35,7 @@ test('Get caclulatePotentialQuantity of BTC', async () => {
   );
   expect(coinPriceInUsdt).not.toBeUndefined();
   const potentialQuantity = await BinanceHandler.caclulatePotentialQuantity(
-    usdtBalance,
+    btcBalance,
     coinPriceInUsdt,
     0.8,
     true,

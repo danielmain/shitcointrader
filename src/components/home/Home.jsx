@@ -84,13 +84,29 @@ const Home = (props: LoginProps) => {
         <AppBar position="static">
           <Toolbar>
             <Typography variant="h6" className={classes.title}>
-            Shitcoin Trader
+              Shitcoin Trader
             </Typography>
             <Button variant="contained" onClick={() => setOpenLogin(true)}>Binance Keys</Button>
           </Toolbar>
         </AppBar>
-        <Login open={openLogin} keys={keys} handleClose={() => setOpenLogin(false)} />
-        <AddTrade open={openAddTrade} handleClose={() => openAddTrade(false)} />
+        { openLogin
+          ? (
+            <Login
+              open={openLogin}
+              keys={keys}
+              handleClose={() => setOpenLogin(false)}
+            />
+          ) : null
+        }
+        { openAddTrade
+          ? (
+            <AddTrade
+              open={openAddTrade}
+              handleClose={() => openAddTrade(false)}
+            />
+          )
+          : null
+        }
         <div>
           <Fab
             size="medium"

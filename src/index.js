@@ -2,10 +2,10 @@
 import _ from 'lodash';
 
 // Binance stuff ------------------------------------ //
-import BinanceHandler from './api/binanceHandler.js';
+import BinanceHandler from './api/binanceHandler';
 
 // Database stuff ------------------------------------ //
-import DatabaseHandler from './api/databaseHandler.js';
+import DatabaseHandler from './api/databaseHandler';
 
 const API_KEY = _.get(process, 'env.API_KEY', null);
 const API_SECRET = _.get(
@@ -37,9 +37,9 @@ const createWindow = () => {
     height: 1000,
   });
 
-  BrowserWindow.addDevToolsExtension('/Users/daniel/Library/Application Support/BraveSoftware/Brave-Browser-Dev/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0');
-  // BrowserWindow.addDevToolsExtension('/Users/daniel/Library/Application Support/BraveSoftware/Brave-Browser-Dev/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.6.0_0');
-
+  BrowserWindow.addDevToolsExtension(
+    '/Users/daniel/Library/Application Support/BraveSoftware/Brave-Browser-Dev/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0',
+  );
 
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/index.html`);
@@ -64,6 +64,7 @@ app.on('ready', async () => {
 });
 
 process.on('uncaughtException', (error) => {
+  console.log('TCL: error', error);
   mainWindow.webContents.send(
     'setStatus',
     { error: _.get(error, 'errno', 500), msg: JSON.stringify(error) },
@@ -82,6 +83,16 @@ const storeKeysInDb = async (apiKey: string, apiSecret: string) => {
       apiKey,
       apiSecret,
     });
+  } catch (error) {
+    console.error(error);
+  }
+  return false;
+};
+
+const getKeysFromDb = async () => {
+  try {
+    const setupCollection = await DatabaseHandler.getSetupCollection(app);
+    return await setupCollection.find({});
   } catch (error) {
     console.error(error);
   }
@@ -110,8 +121,8 @@ ipcMain.on('storeApiKey', async (event, keys) => {
 
 ipcMain.on('getApiKey', async (event) => {
   try {
-    const setupCollection = await DatabaseHandler.getSetupCollection(app);
-    const keys = await setupCollection.find({});
+    const keys = await getKeysFromDb();
+    // console.log('TCL: keys', keys);
     if (_.get(keys, '[0].apiKey', false)) {
       event.sender.send('setStatus', { code: 202, msg: 'Getting keys ok' });
       event.sender.send('getApiKey', keys[0]);
@@ -119,7 +130,39 @@ ipcMain.on('getApiKey', async (event) => {
       event.sender.send('setStatus', { code: 404, msg: 'No Api Keys stored' });
     }
   } catch (error) {
+    console.log('TCL: error', error);
     event.sender.send('setStatus', { code: 500, msg: JSON.stringify(error) });
+  }
+});
+
+ipcMain.on('getBalance', async (event, coin) => {
+  console.log('TCL: getBalance->keys ===============> coin:', coin);
+  if (!_.isEmpty(coin)) {
+    try {
+      const keys = await getKeysFromDb();
+      if (keys) {
+        const binanceClient = await BinanceHandler.getBinanceClient(
+          _.get(keys, 'apiKey'),
+          _.get(keys, 'apiSecret'),
+        );
+        const balance = await BinanceHandler.getCoinBalance(
+          binanceClient,
+          coin,
+          true,
+          5,
+        );
+        event.sender.send('getBalance', balance);
+      } else {
+        console.log('NO KEYS FOUND!!!!');
+        event.sender.send(
+          'setStatus',
+          { code: 500, msg: 'No keys stored, please set the keys agian' },
+        );
+      }
+    } catch (error) {
+      console.log('TCL: error', error);
+      event.sender.send('setStatus', { code: 500, msg: JSON.stringify(error) });
+    }
   }
 });
 

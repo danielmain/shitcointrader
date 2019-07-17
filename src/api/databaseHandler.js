@@ -15,7 +15,6 @@ const removeDb = (electronApp, fileName): void => {
   return fsPromises.unlink(databaseFileName);
 };
 
-
 const DatabaseHandler = {
   getSetupCollection: async (electronApp): any => {
     try {

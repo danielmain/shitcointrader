@@ -13,12 +13,14 @@ import * as serviceWorker from './serviceWorker';
 import {
   storeApiKey,
   getApiKey,
+  getBalance,
   setStatus,
 } from './actions';
 
 const ipc = createIpc({
   storeApiKey,
   getApiKey,
+  getBalance,
   setStatus,
 });
 
