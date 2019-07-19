@@ -1,5 +1,4 @@
 // @flow
-
 import _ from 'lodash';
 import Binance from 'node-binance-api';
 import dateTime from 'node-datetime';
@@ -13,7 +12,7 @@ const getTime = () => {
 const getBalancePromise = (
   code: string,
   binanceClient: any,
-) => new Promise((resolve, reject) => binanceClient.balance((error, balances) => {
+): Promise<number> => new Promise((resolve, reject) => binanceClient.balance((error, balances) => {
   if (error) {
     console.log('Error getting Balance');
     reject(error);
@@ -36,8 +35,6 @@ const getCoinBalance = async (
   round: boolean,
   precision: number,
 ) => {
-  console.log('Aaaaaaaaaaaaaaaaaaaa');
-  return 10;
   const balances = await getBalancePromise(
     code.toUpperCase(),
     binanceClient,
@@ -51,7 +48,7 @@ const getCoinBalance = async (
 
 const checkCredentials = async (APIKEY: string, APISECRET: string) => {
   console.log(`Checking credentials ....APIKEY: ${APIKEY} | APISECRET: ${APISECRET}`);
-  const binance = require('node-binance-api')().options({
+  const binance = Binance.options({
     APIKEY,
     APISECRET,
     useServerTime: true,
@@ -71,11 +68,13 @@ const checkCredentials = async (APIKEY: string, APISECRET: string) => {
 
 const getBinanceClient = async (APIKEY: string, APISECRET: string) => {
   try {
-    return require('node-binance-api')().options({
+    const binanceClient = new Binance();
+    binanceClient.options({
       APIKEY,
       APISECRET,
       useServerTime: true,
     });
+    return binanceClient;
   } catch (error) {
     const errorObject = JSON.parse(_.get(error, 'body', {}));
     return errorObject;

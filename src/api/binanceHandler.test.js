@@ -83,27 +83,15 @@ test('Get stoploss value of BTC', async () => {
   expect(stopLossPrice).not.toBeLessThan(0.1);
 });
 
-test('Get caclulatePotentialQuantity of BTC', async () => {
-  const usdtBalance = await BinanceHandler.getCoinBalance(
+test('Get quantity of BTC', async () => {
+  expect.assertions(1);
+  const btcBalance = await BinanceHandler.getCoinBalance(
     binanceClient,
-    'USDT',
-    true,
-    1,
-  );
-  const coinPriceInUsdt = await BinanceHandler.getCoinPrice(
     'BTC',
-    'USDT',
-    binanceClient,
-  );
-
-  const potentialQuantity = await BinanceHandler.caclulatePotentialQuantity(
-    usdtBalance,
-    coinPriceInUsdt,
-    0.8,
     true,
+    8,
   );
-  console.log('TCL: potentialQuantity', potentialQuantity);
-  expect(potentialQuantity).not.toBeUndefined();
+  expect(btcBalance).not.toBeLessThan(0.01);
 });
 
 test('Get BTC/PAX Price', async () => {

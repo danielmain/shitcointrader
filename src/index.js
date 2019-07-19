@@ -28,7 +28,7 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow;
+let mainWindow: BrowserWindow;
 
 const createWindow = () => {
   // Create the browser window.
@@ -125,7 +125,7 @@ ipcMain.on('getApiKey', async (event) => {
     // console.log('TCL: keys', keys);
     if (_.get(keys, '[0].apiKey', false)) {
       event.sender.send('setStatus', { code: 202, msg: 'Getting keys ok' });
-      event.sender.send('getApiKey', keys[0]);
+      event.sender.send('getApiKey', _.get(keys, '[0]'));
     } else {
       event.sender.send('setStatus', { code: 404, msg: 'No Api Keys stored' });
     }
@@ -141,9 +141,11 @@ ipcMain.on('getBalance', async (event, coin) => {
     try {
       const keys = await getKeysFromDb();
       if (keys) {
+        const apiKey = _.get(keys, '[0].apiKey');
+        const apiSecret = _.get(keys, '[0].apiSecret');
         const binanceClient = await BinanceHandler.getBinanceClient(
-          _.get(keys, 'apiKey'),
-          _.get(keys, 'apiSecret'),
+          apiKey,
+          apiSecret,
         );
         const balance = await BinanceHandler.getCoinBalance(
           binanceClient,
