@@ -6,6 +6,7 @@ export const STORE_APIKEY = 'STORE_APIKEY';
 export const GET_APIKEY = 'GET_APIKEY';
 export const SET_STATUS = 'SET_STATUS';
 export const GET_BALANCE = 'GET_BALANCE';
+export const BUY_COIN = 'BUY_COIN';
 
 /*
  * action creators
@@ -28,4 +29,9 @@ export function setStatus(event, payload) {
 export function getBalance(event, payload) {
   console.log('Actions->getBalance: status -> status', payload);
   return { type: GET_BALANCE, payload };
+}
+
+export function buyCoin(event, payload) {
+  console.log('Actions->buyCoin: status -> status', payload);
+  return { type: BUY_COIN, payload };
 }

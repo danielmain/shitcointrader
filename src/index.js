@@ -37,9 +37,11 @@ const createWindow = () => {
     height: 1000,
   });
 
-  BrowserWindow.addDevToolsExtension(
-    '/Users/daniel/Library/Application Support/BraveSoftware/Brave-Browser-Dev/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0',
-  );
+  // BrowserWindow.addDevToolsExtension(
+  // '/Users/daniel/Library/Application
+  // Support/BraveSoftware/Brave-Browser-Dev/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd
+  // /2.17.0_0',
+  // );
 
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/index.html`);
@@ -89,6 +91,22 @@ const storeKeysInDb = async (apiKey: string, apiSecret: string) => {
   return false;
 };
 
+const storeTrade = async (orderId: string, buyPrice: number, stopLossPrice: number, date: Date) => {
+  const tradingCollection = await DatabaseHandler.getTradingCollection(app);
+  try {
+    return await tradingCollection.insert({
+      orderId,
+      buyPrice,
+      stopLossPrice,
+      date,
+    });
+  } catch (error) {
+    console.error(error);
+  }
+  return false;
+};
+
+
 const getKeysFromDb = async () => {
   try {
     const setupCollection = await DatabaseHandler.getSetupCollection(app);
@@ -97,6 +115,24 @@ const getKeysFromDb = async () => {
     console.error(error);
   }
   return false;
+};
+
+const getBinanceClient = async (event) => {
+  const keys = await getKeysFromDb();
+  if (keys) {
+    const apiKey = _.get(keys, '[0].apiKey');
+    const apiSecret = _.get(keys, '[0].apiSecret');
+    return BinanceHandler.getBinanceClient(
+      apiKey,
+      apiSecret,
+    );
+  }
+  console.log('NO KEYS FOUND!!!!');
+  event.sender.send(
+    'setStatus',
+    { code: 500, msg: 'No keys stored, please set the keys agian' },
+  );
+  return null;
 };
 
 ipcMain.on('storeApiKey', async (event, keys) => {
@@ -136,17 +172,10 @@ ipcMain.on('getApiKey', async (event) => {
 });
 
 ipcMain.on('getBalance', async (event, coin) => {
-  console.log('TCL: getBalance->keys ===============> coin:', coin);
   if (!_.isEmpty(coin)) {
     try {
-      const keys = await getKeysFromDb();
-      if (keys) {
-        const apiKey = _.get(keys, '[0].apiKey');
-        const apiSecret = _.get(keys, '[0].apiSecret');
-        const binanceClient = await BinanceHandler.getBinanceClient(
-          apiKey,
-          apiSecret,
-        );
+      const binanceClient = getBinanceClient();
+      if (binanceClient) {
         const balance = await BinanceHandler.getCoinBalance(
           binanceClient,
           coin,
@@ -154,12 +183,32 @@ ipcMain.on('getBalance', async (event, coin) => {
           5,
         );
         event.sender.send('getBalance', balance);
-      } else {
-        console.log('NO KEYS FOUND!!!!');
-        event.sender.send(
-          'setStatus',
-          { code: 500, msg: 'No keys stored, please set the keys agian' },
+      }
+    } catch (error) {
+      console.log('TCL: error', error);
+      event.sender.send('setStatus', { code: 500, msg: JSON.stringify(error) });
+    }
+  }
+});
+
+ipcMain.on('buyCoin', async (event, { coin, stopLoss }) => {
+  if (!_.isEmpty(coin) && !_.isEmpty(coin)) {
+    try {
+      const binanceClient = getBinanceClient();
+      if (binanceClient) {
+        const report = await BinanceHandler.buyCoin(
+          binanceClient,
+          coin,
+          true,
+          100,
+          5,
         );
+        if (_.get(report, 'orderId', false)) {
+          const coinPrice = await BinanceHandler.getCoinPrice(coin, 'BTC', binanceClient);
+          const stopLossPrice = BinanceHandler.getStopLossPrice(stopLoss, coinPrice);
+          storeTrade(report.orderId, coinPrice, stopLossPrice, new Date());
+          event.sender.send('buyCoin', report);
+        }
       }
     } catch (error) {
       console.log('TCL: error', error);

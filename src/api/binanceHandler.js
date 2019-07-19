@@ -119,7 +119,6 @@ const marketBuy = (
   stopLossPrice: number,
   coinPotentialQuantity,
   buyer,
-  messageHandler,
 ) => new Promise((resolve, reject) => {
   binanceClient.marketBuy(
     `${code.toUpperCase()}USDT`,
@@ -140,25 +139,11 @@ const marketBuy = (
           errorObject: error.body,
           when: getTime(),
         };
-        messageHandler.storeErrorIndDb({
-          ...errorObject,
-          code,
-        });
         reject(error);
       } else {
         console.log(
           `${getTime()} ${buyer} compró ${coinPotentialQuantity} ${code}`,
         );
-        messageHandler.storeOperationIndDb({
-          _id: new Date().getTime(),
-          type: 'buy',
-          code,
-          buyer,
-          potentialBuy: coinPotentialQuantity,
-          stopLossPrice,
-          response,
-        },
-        code);
         resolve(response);
       }
     },
@@ -198,7 +183,6 @@ const buyCoin = async (
   percentage,
   precision,
   buyer,
-  messageHandler,
 ) => {
   const usdtBalance = await getCoinBalance(
     binanceClient,
@@ -234,7 +218,6 @@ const buyCoin = async (
       stopLossPrice,
       coinPotentialQuantity,
       buyer,
-      messageHandler,
     );
     return buyReport;
   }
@@ -246,7 +229,6 @@ const marketSell = (
   code,
   coinBalance,
   seller,
-  messageHandler,
 ) => new Promise<any>((resolve, reject) => {
   console.log(
     `Preparing to sell: ${code.toUpperCase()}USDT from balance: ${coinBalance}`,
@@ -267,24 +249,12 @@ const marketSell = (
           errorObject: error.body,
           when: getTime(),
         };
-        messageHandler.storeErrorIndDb({
-          ...errorObject,
-          code,
-        });
         reject(errorObject);
       } else {
         // console.log(`marketSell response ${JSON.stringify(response)}`);
         console.log(
           `${getTime()} ${seller} vendió ${coinBalance} ${code}`,
         );
-        messageHandler.storeOperationIndDb({
-          _id: new Date().getTime(),
-          type: 'sell',
-          code,
-          seller,
-          potentialSell: coinBalance,
-          response,
-        });
         resolve(response);
       }
     },
@@ -297,7 +267,6 @@ const sellCoin = async (
   round: boolean,
   precision: number,
   seller: string,
-  messageHandler: any,
 ) => {
   const coinBalance = await getCoinBalance(
     binanceClient,
@@ -312,7 +281,6 @@ const sellCoin = async (
       code,
       coinBalance,
       seller,
-      messageHandler,
     );
     return sellReport;
   }
@@ -328,6 +296,8 @@ const BinanceHandler = {
   getStopLossPrice,
   checkCredentials,
   getBinanceClient,
+  buyCoin,
+  sellCoin,
 };
 
 export default BinanceHandler;

@@ -29,6 +29,12 @@ const reducers = (state = {}, action) => {
       ...state,
       balance: _.get(action, 'payload', {}),
     };
+  case 'BUY_COIN':
+    console.log('reducers=> BUY_COIN', action);
+    return {
+      ...state,
+      orderId: _.get(action, 'payload', {}),
+    };
   default:
     return state;
   }

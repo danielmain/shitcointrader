@@ -102,7 +102,7 @@ const Home = (props: LoginProps) => {
           ? (
             <AddTrade
               open={openAddTrade}
-              handleClose={() => openAddTrade(false)}
+              handleClose={() => setOpenAddTrade(false)}
             />
           )
           : null
