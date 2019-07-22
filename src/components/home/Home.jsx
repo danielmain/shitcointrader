@@ -61,21 +61,21 @@ const Home = (props: LoginProps) => {
   const getApiKey = _.get(props, 'getApiKey');
   const keys = _.get(props, 'keys', false);
   const statusCode = _.get(props, 'status.code', false);
-  const status = _.get(props, 'status.code', { code: 0 });
+  const status = _.get(props, 'status', { code: 0 });
 
   useEffect(() => {
     if (!_.get(props, 'keys.apiKey', false) && !_.includes([500, 404], statusCode)) {
       getApiKey();
     } else if (!_.get(props, 'keys.apiKey', false) && _.includes([500, 404], statusCode)) {
       setOpenLogin(true);
-    } else {
-      console.log(`apiKey: ${_.get(props, 'keys.apiKey', false)} | statusCode: ${statusCode}`);
     }
-  }, [keys, status]);
+  }, [keys, statusCode]);
 
-  if (_.get(status, 'msg', false)) {
-    alert(_.get(status, 'msg'));
-  }
+  useEffect(() => {
+    if (_.get(status, 'msg', false)) {
+      alert(_.get(status, 'msg'));
+    }
+  }, [statusCode]);
 
   return (
     <MuiThemeProvider theme={theme}>

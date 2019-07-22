@@ -119,6 +119,7 @@ const Login = (props: LoginProps) => {
             className={classes.textField}
             margin="normal"
             variant="outlined"
+            value={apiKey}
             onChange={e => setApiKey(e.target.value)}
             error={apiKey.length < 63}
           />
@@ -130,6 +131,7 @@ const Login = (props: LoginProps) => {
             type="password"
             margin="normal"
             variant="outlined"
+            value={apiSecret}
             onChange={e => setApiSecret(e.target.value)}
             error={apiSecret.length < 63}
           />

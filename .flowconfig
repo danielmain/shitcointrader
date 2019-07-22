@@ -5,7 +5,7 @@
 [include]
 
 [libs]
-<PROJECT_ROOT>/type-def-libs
+<PROJECT_ROOT>/flow-libs/
 [lints]
 
 [options]

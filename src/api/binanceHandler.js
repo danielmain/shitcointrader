@@ -14,7 +14,7 @@ const getBalancePromise = (
   binanceClient: any,
 ): Promise<number> => new Promise((resolve, reject) => binanceClient.balance((error, balances) => {
   if (error) {
-    console.log('Error getting Balance');
+    console.error(error);
     reject(error);
   }
   const balance = _.get(
@@ -46,39 +46,21 @@ const getCoinBalance = async (
   return balanceExactNumber;
 };
 
-const checkCredentials = async (APIKEY: string, APISECRET: string) => {
-  console.log(`Checking credentials ....APIKEY: ${APIKEY} | APISECRET: ${APISECRET}`);
-  const binance = Binance.options({
+const getBinanceClient = async (APIKEY: string, APISECRET: string) => {
+  const binanceClient = new Binance();
+  binanceClient.options({
     APIKEY,
     APISECRET,
     useServerTime: true,
   });
-
-  try {
-    const balance = await getBalancePromise('BTC', binance);
-    console.log('TCL: checkCredentials -> balance', balance);
-    return _.isEmpty(balance)
-      ? { code: 500, msg: 'Error getting balance' }
-      : { code: 200, msg: 'Credentials ok' };
-  } catch (error) {
-    const errorObject = JSON.parse(_.get(error, 'body', {}));
-    return errorObject;
-  }
+  return binanceClient;
 };
 
-const getBinanceClient = async (APIKEY: string, APISECRET: string) => {
-  try {
-    const binanceClient = new Binance();
-    binanceClient.options({
-      APIKEY,
-      APISECRET,
-      useServerTime: true,
-    });
-    return binanceClient;
-  } catch (error) {
-    const errorObject = JSON.parse(_.get(error, 'body', {}));
-    return errorObject;
-  }
+const checkCredentials = async (APIKEY: string, APISECRET: string) => {
+  const balance = await getBalancePromise('BTC', await getBinanceClient(APIKEY, APISECRET));
+  return _.isEmpty(balance)
+    ? { code: 500, msg: 'Error getting balance' }
+    : { code: 200, msg: 'Credentials ok' };
 };
 
 const getCoinPricePromise = (
@@ -104,10 +86,7 @@ const getCoinPrice = async (
   code: string,
   pair: string,
   binanceClient: any,
-): Promise<number> => {
-  console.log('trying to get price of ', code);
-  return getCoinPricePromise(binanceClient, code.toUpperCase());
-};
+): Promise<number> => getCoinPricePromise(binanceClient, code.toUpperCase());
 
 const calculateCoinQuantity = (usdtBalance, priceInUsdt) => usdtBalance / priceInUsdt;
 
@@ -118,7 +97,6 @@ const marketBuy = (
   percentage,
   stopLossPrice: number,
   coinPotentialQuantity,
-  buyer,
 ) => new Promise((resolve, reject) => {
   binanceClient.marketBuy(
     `${code.toUpperCase()}USDT`,
@@ -133,16 +111,10 @@ const marketBuy = (
           `${getTime()} - Error on marketBuy, buying ${coinPotentialQuantity} ${code}`,
           errorBody,
         );
-        const errorObject = {
-          _id: new Date().getTime(),
-          code: 5,
-          errorObject: error.body,
-          when: getTime(),
-        };
         reject(error);
       } else {
         console.log(
-          `${getTime()} ${buyer} compró ${coinPotentialQuantity} ${code}`,
+          `${getTime()} purchased ${coinPotentialQuantity} ${code}`,
         );
         resolve(response);
       }
@@ -182,7 +154,6 @@ const buyCoin = async (
   round,
   percentage,
   precision,
-  buyer,
 ) => {
   const usdtBalance = await getCoinBalance(
     binanceClient,
@@ -196,7 +167,6 @@ const buyCoin = async (
     binanceClient,
   );
   const stopLossPrice = getStopLossPrice(2, coinPriceInUsdt);
-  console.log('TCL: stopLossPrice', stopLossPrice);
   const coinPotentialQuantity = caclulatePotentialQuantity(
     usdtBalance,
     coinPriceInUsdt,
@@ -217,7 +187,6 @@ const buyCoin = async (
       percentage,
       stopLossPrice,
       coinPotentialQuantity,
-      buyer,
     );
     return buyReport;
   }
@@ -228,7 +197,6 @@ const marketSell = (
   binanceClient,
   code,
   coinBalance,
-  seller,
 ) => new Promise<any>((resolve, reject) => {
   console.log(
     `Preparing to sell: ${code.toUpperCase()}USDT from balance: ${coinBalance}`,
@@ -238,7 +206,6 @@ const marketSell = (
     coinBalance,
     {
       type: 'MARKET',
-
     },
     (error, response) => {
       if (error) {
@@ -253,7 +220,7 @@ const marketSell = (
       } else {
         // console.log(`marketSell response ${JSON.stringify(response)}`);
         console.log(
-          `${getTime()} ${seller} vendió ${coinBalance} ${code}`,
+          `${getTime()} sell ${coinBalance} ${code}`,
         );
         resolve(response);
       }
@@ -266,7 +233,6 @@ const sellCoin = async (
   code: string,
   round: boolean,
   precision: number,
-  seller: string,
 ) => {
   const coinBalance = await getCoinBalance(
     binanceClient,
@@ -280,7 +246,6 @@ const sellCoin = async (
       binanceClient,
       code,
       coinBalance,
-      seller,
     );
     return sellReport;
   }

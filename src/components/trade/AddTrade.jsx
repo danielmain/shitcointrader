@@ -115,11 +115,11 @@ const AddTrade = (props: AddTradeProps) => {
 
   const [values, setValues] = useState({
     pair: {
-      code: 'XRP',
+      value: 'XRP',
       name: 'BTC/XRP-Ripple',
     },
     stopLoss: {
-      code: 2,
+      value: 2,
       name: '2%',
     },
   });
@@ -128,9 +128,14 @@ const AddTrade = (props: AddTradeProps) => {
   console.log('TCL: AddTrade -> statusCode', statusCode);
 
   const handleChange = (event) => {
+    console.log('CHANGING TO: handleChange -> event.target', event.target);
+    console.dir(event.target);
     setValues(oldValues => ({
       ...oldValues,
-      pair: { [event.target.name]: event.target.code },
+      pair: {
+        name: event.target.name,
+        value: event.target.value,
+      },
     }));
   };
 
@@ -139,6 +144,7 @@ const AddTrade = (props: AddTradeProps) => {
       getBalance('BTC');
     }
   }, [statusCode, balance]);
+  console.log('TCL: AddTrade -> values', values);
 
   const saldoString = `Your BTC Saldo now is: ${balance}`;
   return (
@@ -160,7 +166,7 @@ const AddTrade = (props: AddTradeProps) => {
                 <FormControl fullWidth className={classes.formControl}>
                   <InputLabel htmlFor="pair-simple">Pair</InputLabel>
                   <Select
-                    value={values.pair.code}
+                    value={values.pair.value}
                     onChange={handleChange}
                     inputProps={{
                       name: 'pair',
@@ -179,7 +185,7 @@ const AddTrade = (props: AddTradeProps) => {
                 <FormControl fullWidth className={classes.formControl}>
                   <InputLabel htmlFor="stopLoss-simple">Stop Loss</InputLabel>
                   <Select
-                    value={values.stopLoss.code}
+                    value={values.stopLoss.value}
                     onChange={handleChange}
                     inputProps={{
                       name: 'stopLoss',
@@ -208,7 +214,7 @@ const AddTrade = (props: AddTradeProps) => {
                   size="large"
                   className={clsx(classes.button, classes.buttonRight)}
                   onClick={() => {
-                    buyCoin(values.pair.code, values.stopLoss.code);
+                    buyCoin(values.pair.value, values.stopLoss.value);
                   }}
                 >
                   <Autorenew className={clsx(classes.rightIcon)} />

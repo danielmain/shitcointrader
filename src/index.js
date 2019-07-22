@@ -28,7 +28,7 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow: BrowserWindow;
+let mainWindow;
 
 const createWindow = () => {
   // Create the browser window.
@@ -65,11 +65,24 @@ app.on('ready', async () => {
   createWindow();
 });
 
+const ipcReduxSend = (action, payload) => {
+  mainWindow.webContents.send(action, payload);
+};
+
+const extractBinanceErrorObject = (error, code = false) => {
+  const errorBody = JSON.parse(error.body);
+  const errorObjectCode = code || (_.get(errorBody, 'code', false));
+  const errorObjectMessage = (_.get(errorBody, 'msg', false) || _.get(errorBody, 'syscall', false) || JSON.stringify(errorBody));
+  const errorObject = (errorObjectCode)
+    ? { error: errorObjectCode, msg: errorObjectMessage }
+    : { error: 500, msg: JSON.stringify(errorBody) };
+  return errorObject;
+};
+
 process.on('uncaughtException', (error) => {
-  console.log('TCL: error', error);
   mainWindow.webContents.send(
     'setStatus',
-    { error: _.get(error, 'errno', 500), msg: JSON.stringify(error) },
+    extractBinanceErrorObject(error),
   );
 });
 
@@ -106,7 +119,6 @@ const storeTrade = async (orderId: string, buyPrice: number, stopLossPrice: numb
   return false;
 };
 
-
 const getKeysFromDb = async () => {
   try {
     const setupCollection = await DatabaseHandler.getSetupCollection(app);
@@ -117,7 +129,7 @@ const getKeysFromDb = async () => {
   return false;
 };
 
-const getBinanceClient = async (event) => {
+const getBinanceClient = async () => {
   const keys = await getKeysFromDb();
   if (keys) {
     const apiKey = _.get(keys, '[0].apiKey');
@@ -127,11 +139,7 @@ const getBinanceClient = async (event) => {
       apiSecret,
     );
   }
-  console.log('NO KEYS FOUND!!!!');
-  event.sender.send(
-    'setStatus',
-    { code: 500, msg: 'No keys stored, please set the keys agian' },
-  );
+  ipcReduxSend('setStatus', { code: 500, msg: 'No keys stored, please set the keys agian' });
   return null;
 };
 
@@ -141,16 +149,21 @@ ipcMain.on('storeApiKey', async (event, keys) => {
   const apiSecret = _.get(keys, 'apiSecret', API_SECRET);
 
   if (isKeyValid(apiKey) && isKeyValid(apiSecret)) {
-    const credentialsStatus = await BinanceHandler.checkCredentials(apiKey, apiSecret);
-    if (_.get(credentialsStatus, 'code', false) === 200) {
-      const result = await storeKeysInDb(apiKey, apiSecret);
-      if (!result) {
-        event.sender.send('setStatus', { code: 500, msg: 'Cannot store keys in db' });
+    try {
+      const credentialsStatus = await BinanceHandler.checkCredentials(apiKey, apiSecret);
+      if (_.get(credentialsStatus, 'code', false) === 200) {
+        const result = await storeKeysInDb(apiKey, apiSecret);
+        if (!result) {
+          ipcReduxSend('setStatus', { code: 500, msg: 'Cannot store keys in db' });
+        } else {
+          setTimeout(() => ipcReduxSend('setStatus', { code: 201, msg: 'New Keys stored and validated' }), 2000);
+        }
       } else {
-        setTimeout(() => event.sender.send('setStatus', { code: 201, msg: 'New Keys stored and validated' }), 2000);
+        ipcReduxSend('setStatus', credentialsStatus);
       }
-    } else {
-      event.sender.send('setStatus', credentialsStatus);
+    } catch (error) {
+      console.error(error);
+      ipcReduxSend('setStatus', extractBinanceErrorObject(error));
     }
   }
 });
@@ -158,23 +171,21 @@ ipcMain.on('storeApiKey', async (event, keys) => {
 ipcMain.on('getApiKey', async (event) => {
   try {
     const keys = await getKeysFromDb();
-    // console.log('TCL: keys', keys);
     if (_.get(keys, '[0].apiKey', false)) {
-      event.sender.send('setStatus', { code: 202, msg: 'Getting keys ok' });
-      event.sender.send('getApiKey', _.get(keys, '[0]'));
+      ipcReduxSend('setStatus', { code: 202, msg: 'Getting keys ok' });
+      ipcReduxSend('getApiKey', _.get(keys, '[0]'));
     } else {
-      event.sender.send('setStatus', { code: 404, msg: 'No Api Keys stored' });
+      ipcReduxSend('setStatus', { code: 404, msg: 'No Api Keys stored' });
     }
   } catch (error) {
-    console.log('TCL: error', error);
-    event.sender.send('setStatus', { code: 500, msg: JSON.stringify(error) });
+    ipcReduxSend('setStatus', extractBinanceErrorObject(error));
   }
 });
 
 ipcMain.on('getBalance', async (event, coin) => {
   if (!_.isEmpty(coin)) {
     try {
-      const binanceClient = getBinanceClient();
+      const binanceClient = await getBinanceClient();
       if (binanceClient) {
         const balance = await BinanceHandler.getCoinBalance(
           binanceClient,
@@ -182,11 +193,11 @@ ipcMain.on('getBalance', async (event, coin) => {
           true,
           5,
         );
-        event.sender.send('getBalance', balance);
+        ipcReduxSend('getBalance', balance);
       }
     } catch (error) {
-      console.log('TCL: error', error);
-      event.sender.send('setStatus', { code: 500, msg: JSON.stringify(error) });
+      console.error(error);
+      ipcReduxSend('setStatus', extractBinanceErrorObject(error));
     }
   }
 });
@@ -203,16 +214,19 @@ ipcMain.on('buyCoin', async (event, { coin, stopLoss }) => {
           100,
           5,
         );
-        if (_.get(report, 'orderId', false)) {
+        const orderId = _.get(report, 'orderId', false);
+        if (orderId) {
           const coinPrice = await BinanceHandler.getCoinPrice(coin, 'BTC', binanceClient);
           const stopLossPrice = BinanceHandler.getStopLossPrice(stopLoss, coinPrice);
-          storeTrade(report.orderId, coinPrice, stopLossPrice, new Date());
-          event.sender.send('buyCoin', report);
+          storeTrade(orderId, coinPrice, stopLossPrice, new Date());
+          ipcReduxSend('buyCoin', report);
+        } else {
+          console.dir(report);
         }
       }
     } catch (error) {
-      console.log('TCL: error', error);
-      event.sender.send('setStatus', { code: 500, msg: JSON.stringify(error) });
+      console.error(error);
+      ipcReduxSend('setStatus', extractBinanceErrorObject(error));
     }
   }
 });
