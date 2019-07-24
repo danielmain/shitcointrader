@@ -104,15 +104,10 @@ const storeKeysInDb = async (apiKey: string, apiSecret: string) => {
   return false;
 };
 
-const storeTrade = async (orderId: string, buyPrice: number, stopLossPrice: number, date: Date) => {
+const storeTrade = async (transaction) => {
   const tradingCollection = await DatabaseHandler.getTradingCollection(app);
   try {
-    return await tradingCollection.insert({
-      orderId,
-      buyPrice,
-      stopLossPrice,
-      date,
-    });
+    return await tradingCollection.insert(transaction);
   } catch (error) {
     console.error(error);
   }
@@ -202,23 +197,28 @@ ipcMain.on('getBalance', async (event, coin) => {
   }
 });
 
-ipcMain.on('buyCoin', async (event, { coin, stopLoss }) => {
+ipcMain.on('buyCoin', async (event, { coin, amount, stopLoss }) => {
   if (!_.isEmpty(coin) && !_.isEmpty(coin)) {
     try {
-      const binanceClient = getBinanceClient();
+      const binanceClient = await getBinanceClient();
       if (binanceClient) {
         const report = await BinanceHandler.buyCoin(
           binanceClient,
           coin,
           true,
-          100,
-          5,
+          amount,
+          0,
         );
+        console.log('TCL: report', report);
+
         const orderId = _.get(report, 'orderId', false);
         if (orderId) {
-          const coinPrice = await BinanceHandler.getCoinPrice(coin, 'BTC', binanceClient);
-          const stopLossPrice = BinanceHandler.getStopLossPrice(stopLoss, coinPrice);
-          storeTrade(orderId, coinPrice, stopLossPrice, new Date());
+          const stopLossPrice = BinanceHandler.getStopLossPrice(stopLoss, _.get(report, 'coinPrice', false));
+          const tradeObject = {
+            ...report,
+            stopLossPrice,
+          };
+          storeTrade(tradeObject);
           ipcReduxSend('buyCoin', report);
         } else {
           console.dir(report);

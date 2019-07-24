@@ -2,85 +2,93 @@ import Binance from 'node-binance-api';
 import BinanceHandler from './binanceHandler';
 
 // DANIEL -------------- //
-const { API_KEY } = process.env;
-const { API_SECRET } = process.env;
 const binanceClient = new Binance();
 
 binanceClient.options({
-  APIKEY: API_KEY,
-  APISECRET: API_SECRET,
+  APIKEY: process.env.API_KEY,
+  APISECRET: process.env.API_SECRET,
   useServerTime: true,
   test: false,
 });
 
-test('Get BTC/TUSD Price', async () => {
-  const btcPrice = await BinanceHandler.getCoinPrice('BTC', 'TUSD', binanceClient);
-  expect(btcPrice).not.toBeLessThan(0.001);
+test('Get BTC/TRX Price', async () => {
+  const trxPrice = await BinanceHandler.getCoinPrice(binanceClient, 'TRX', 'BTC');
+  expect(trxPrice).not.toBeLessThan(0.000001);
 });
 
-test('Get caclulatePotentialQuantity of BTC', async () => {
+test('Get caclulatePotentialQuantity of TRX', async () => {
   const btcBalance = await BinanceHandler.getCoinBalance(
     binanceClient,
     'BTC',
     true,
     5,
   );
-  expect(btcBalance).not.toBeLessThan(0.01);
-
   expect(btcBalance).not.toBeUndefined();
-  const coinPriceInUsdt = await BinanceHandler.getCoinPrice(
-    'BTC',
-    'USDT',
+  expect(btcBalance).not.toBeLessThan(0.01);
+  const coinPriceInBtc = await BinanceHandler.getCoinPrice(
     binanceClient,
+    'TRX',
+    'BTC',
   );
-  expect(coinPriceInUsdt).not.toBeUndefined();
+  expect(coinPriceInBtc).not.toBeUndefined();
+  expect(coinPriceInBtc).not.toBeLessThan(0.00000139);
   const potentialQuantity = await BinanceHandler.caclulatePotentialQuantity(
     btcBalance,
-    coinPriceInUsdt,
-    0.8,
+    coinPriceInBtc,
+    0.25,
     true,
     4,
   );
   expect(potentialQuantity).not.toBeUndefined();
+  expect(potentialQuantity).not.toBeLessThan(4000);
+});
+
+test('Get the stoploss of 2% of BTC/ETH', async () => {
+  const coinPriceInBtc = await BinanceHandler.getCoinPrice(
+    binanceClient,
+    'ETH',
+    'BTC',
+  );
   const stopLossPrice = await BinanceHandler.getStopLossPrice(
     2,
-    coinPriceInUsdt,
+    coinPriceInBtc,
   );
   expect(stopLossPrice).not.toBeUndefined();
+  expect(stopLossPrice).not.toBeLessThan(0.01);
 });
 
 test('Get stoploss value of BTC', async () => {
-  const coinPriceInUsdt = await BinanceHandler.getCoinPrice(
-    'BTC',
-    'USDT',
+  const coinPriceInBtc = await BinanceHandler.getCoinPrice(
     binanceClient,
+    'ETH',
+    'BTC',
   );
-  expect(coinPriceInUsdt).not.toBeUndefined();
-  console.log('TCL: coinPriceInUsdt', coinPriceInUsdt);
+  expect(coinPriceInBtc).not.toBeUndefined();
+  console.log('TCL: coinPriceInBtc', coinPriceInBtc);
   const stopLossPrice = await BinanceHandler.getStopLossPrice(
     2,
-    coinPriceInUsdt,
+    coinPriceInBtc,
   );
   console.log('TCL: stopLossPrice', stopLossPrice);
   expect(stopLossPrice).not.toBeUndefined();
-  expect(stopLossPrice).not.toBeLessThan(3000);
+  expect(stopLossPrice).not.toBeLessThan(0.01);
 });
 
 test('Get stoploss value of BTC', async () => {
-  const coinPriceInUsdt = await BinanceHandler.getCoinPrice(
-    'BTC',
-    'USDT',
+  const coinPriceInBtc = await BinanceHandler.getCoinPrice(
     binanceClient,
+    'ETH',
+    'BTC',
   );
-  expect(coinPriceInUsdt).not.toBeUndefined();
-  console.log('TCL: coinPriceInUsdt', coinPriceInUsdt);
+  expect(coinPriceInBtc).not.toBeUndefined();
+  console.log('TCL: coinPriceInBtc', coinPriceInBtc);
   const stopLossPrice = await BinanceHandler.getStopLossPrice(
     2,
-    coinPriceInUsdt,
+    coinPriceInBtc,
   );
   console.log('TCL: stopLossPrice', stopLossPrice);
   expect(stopLossPrice).not.toBeUndefined();
-  expect(stopLossPrice).not.toBeLessThan(0.1);
+  expect(stopLossPrice).not.toBeLessThan(0.01);
 });
 
 test('Get quantity of BTC', async () => {
@@ -94,20 +102,14 @@ test('Get quantity of BTC', async () => {
   expect(btcBalance).not.toBeLessThan(0.01);
 });
 
-test('Get BTC/PAX Price', async () => {
-  const btcPrice = await BinanceHandler.getCoinPrice('BTC', 'PAX', binanceClient);
-  console.log('PAX btcPrice ===========>', btcPrice);
-  expect(btcPrice).not.toBeLessThan(0.1);
+test('Get BTC/ETH Price', async () => {
+  const btcPrice = await BinanceHandler.getCoinPrice(binanceClient, 'ETH', 'BTC');
+  console.log('ETH btcPrice ===========>', btcPrice);
+  expect(btcPrice).not.toBeLessThan(0.01);
 });
 
-test('Get BTC/USDT Price', async () => {
-  const btcPrice = await BinanceHandler.getCoinPrice('BTC', 'USDT', binanceClient);
-  console.log('USDT btcPrice ===========>', btcPrice);
-  expect(btcPrice).not.toBeLessThan(0.1);
-});
-
-test('Get USDT Balane', async () => {
-  const balance = await BinanceHandler.getBalancePromise('USDT', binanceClient);
+test('Get ETH Balane', async () => {
+  const balance = await BinanceHandler.getBalancePromise('ETH', binanceClient);
   console.log('balance', balance);
   expect(balance).not.toBeUndefined();
 });

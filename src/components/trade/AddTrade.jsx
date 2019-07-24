@@ -20,6 +20,7 @@ import Select from '@material-ui/core/Select'; import Card from '@material-ui/co
 import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
 import _ from 'lodash';
+import { BUY_COIN } from '../../actions/index';
 
 const logoUri = 'images/binance.png';
 
@@ -72,8 +73,11 @@ const useStyles = makeStyles(theme => ({
   pair: {
     minWidth: 160,
   },
+  amount: {
+    minWidth: 80,
+  },
   stopLoss: {
-    minWidth: 20,
+    minWidth: 80,
   },
   selectEmpty: {
     marginTop: theme.spacing(2),
@@ -96,10 +100,6 @@ type AddTradeProps = {
   },
 };
 
-const handleChange = (e) => {
-  console.log(e);
-};
-
 const AddTrade = (props: AddTradeProps) => {
   const classes = useStyles();
   const {
@@ -118,6 +118,10 @@ const AddTrade = (props: AddTradeProps) => {
       value: 'XRP',
       name: 'BTC/XRP-Ripple',
     },
+    amount: {
+      value: 0.25,
+      name: '25%',
+    },
     stopLoss: {
       value: 2,
       name: '2%',
@@ -127,12 +131,30 @@ const AddTrade = (props: AddTradeProps) => {
   const statusCode = _.get(props, 'status.code', false);
   console.log('TCL: AddTrade -> statusCode', statusCode);
 
-  const handleChange = (event) => {
-    console.log('CHANGING TO: handleChange -> event.target', event.target);
-    console.dir(event.target);
+  const handlePairChange = (event) => {
     setValues(oldValues => ({
       ...oldValues,
       pair: {
+        name: event.target.name,
+        value: event.target.value,
+      },
+    }));
+  };
+
+  const handleAmountChange = (event) => {
+    setValues(oldValues => ({
+      ...oldValues,
+      amount: {
+        name: event.target.name,
+        value: event.target.value,
+      },
+    }));
+  };
+
+  const handleStopLossChange = (event) => {
+    setValues(oldValues => ({
+      ...oldValues,
+      stopLoss: {
         name: event.target.name,
         value: event.target.value,
       },
@@ -167,26 +189,50 @@ const AddTrade = (props: AddTradeProps) => {
                   <InputLabel htmlFor="pair-simple">Pair</InputLabel>
                   <Select
                     value={values.pair.value}
-                    onChange={handleChange}
+                    onChange={handlePairChange}
                     inputProps={{
                       name: 'pair',
                       id: 'pair-simple',
                     }}
                     className={classes.pair}
                   >
-                    <MenuItem value="XRP">BTC/XRP-Ripple</MenuItem>
-                    <MenuItem value="ETH">BTC/Ethereum</MenuItem>
-                    <MenuItem value="XMR">BTC/Monero</MenuItem>
+                    <MenuItem value="ARK">BTC/Ark</MenuItem>
+                    <MenuItem value="BNB">BTC/Binance Coin</MenuItem>
                     <MenuItem value="LINK">BTC/Chainlink</MenuItem>
+                    <MenuItem value="ETH">BTC/Ethereum</MenuItem>
+                    <MenuItem value="IOTA">BTC/IOTA</MenuItem>
+                    <MenuItem value="LSK">BTC/Lisk</MenuItem>
+                    <MenuItem value="XMR">BTC/Monero</MenuItem>
+                    <MenuItem value="TRX">BTC/Tron</MenuItem>
+                    <MenuItem value="XRP">BTC/XRP</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth className={classes.formControl}>
+                  <InputLabel htmlFor="amount-simple">Amount</InputLabel>
+                  <Select
+                    value={values.amount.value}
+                    onChange={handleAmountChange}
+                    inputProps={{
+                      name: 'amount',
+                      id: 'amount-simple',
+                    }}
+                    className={classes.amount}
+                  >
+                    <MenuItem value={0.25}>25%</MenuItem>
+                    <MenuItem value={0.5}>50%</MenuItem>
+                    <MenuItem value={0.75}>75%</MenuItem>
+                    <MenuItem value={1}>100%</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={3}>
                 <FormControl fullWidth className={classes.formControl}>
                   <InputLabel htmlFor="stopLoss-simple">Stop Loss</InputLabel>
                   <Select
                     value={values.stopLoss.value}
-                    onChange={handleChange}
+                    onChange={handleStopLossChange}
                     inputProps={{
                       name: 'stopLoss',
                       id: 'stopLoss-simple',
@@ -199,7 +245,9 @@ const AddTrade = (props: AddTradeProps) => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={12}>
+            </Grid>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={12}>
                 <Button
                   variant="contained"
                   size="large"
@@ -214,7 +262,11 @@ const AddTrade = (props: AddTradeProps) => {
                   size="large"
                   className={clsx(classes.button, classes.buttonRight)}
                   onClick={() => {
-                    buyCoin(values.pair.value, values.stopLoss.value);
+                    buyCoin(
+                      values.pair.value,
+                      values.amount.value,
+                      values.stopLoss.value,
+                    );
                   }}
                 >
                   <Autorenew className={clsx(classes.rightIcon)} />
@@ -235,7 +287,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   setStatus: status => dispatch(send('setStatus', status)),
   getBalance: coin => dispatch(send('getBalance', coin)),
-  buyCoin: (coin, stopLoss) => dispatch(send('buyCoin', { coin, stopLoss })),
+  buyCoin: (coin, amount, stopLoss) => dispatch(send('buyCoin', { coin, amount, stopLoss })),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AddTrade);

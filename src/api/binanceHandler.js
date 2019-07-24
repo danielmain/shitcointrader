@@ -66,29 +66,31 @@ const checkCredentials = async (APIKEY: string, APISECRET: string) => {
 const getCoinPricePromise = (
   binanceClient: any,
   code: string,
-): Promise<number> => new Promise((resolve, reject) => binanceClient.prices(`${code}USDT`, (error, ticker) => {
+  pair: string = 'BTC',
+): Promise<number> => new Promise((resolve, reject) => binanceClient.prices(`${code}${pair}`, (error, ticker) => {
+  console.log('TCL: code', code);
   if (error) {
-    reject(new Error(`Error getting ticker for coin ${code}:${error}`));
+    reject(new Error(`Error getting ticker for coin ${code}:${JSON.stringify(error)}`));
   }
-  const priceStr = _.get(ticker, `${code}USDT`, false);
+  const priceStr = _.get(ticker, `${code}BTC`, false);
   if (!priceStr) {
-    reject(new Error(`${code}USDT not found, ${JSON.stringify(ticker)}`));
+    reject(new Error(`${code}BTC not found, ${JSON.stringify(ticker)}`));
   }
   const price = _.toNumber(priceStr);
   if (!price || price === 0) {
-    reject(new Error(`${code}USDT is not valid ==> ${price}`));
+    reject(new Error(`${code}BTC is not valid ==> ${price}`));
   } else {
     resolve(_.toNumber(priceStr));
   }
 }));
 
 const getCoinPrice = async (
+  binanceClient: any,
   code: string,
   pair: string,
-  binanceClient: any,
-): Promise<number> => getCoinPricePromise(binanceClient, code.toUpperCase());
+): Promise<number> => getCoinPricePromise(binanceClient, code, pair);
 
-const calculateCoinQuantity = (usdtBalance, priceInUsdt) => usdtBalance / priceInUsdt;
+const calculateCoinQuantity = (btcBalance, priceInBtc) => btcBalance / priceInBtc;
 
 const marketBuy = (
   binanceClient,
@@ -99,7 +101,7 @@ const marketBuy = (
   coinPotentialQuantity,
 ) => new Promise((resolve, reject) => {
   binanceClient.marketBuy(
-    `${code.toUpperCase()}USDT`,
+    `${code.toUpperCase()}BTC`,
     coinPotentialQuantity,
     {
       type: 'MARKET',
@@ -123,13 +125,13 @@ const marketBuy = (
 });
 
 const caclulatePotentialQuantity = (
-  usdtBalance: number,
-  coinPriceInUsdt: number,
+  btcBalance: number,
+  coinPriceInBtc: number,
   percentage: number,
   round: boolean,
   precision: number,
 ) => {
-  const possibleQuantity = calculateCoinQuantity(usdtBalance, coinPriceInUsdt);
+  const possibleQuantity = calculateCoinQuantity(btcBalance, coinPriceInBtc);
   const potentialQuantity = _.toNumber(possibleQuantity) * percentage;
   console.log(
     `potentialQuantity = ${potentialQuantity} | percentage = ${percentage}`,
@@ -144,8 +146,8 @@ const getStopLossPrice = (
   percentageLoss: number,
   price: number,
 ) => {
-  const exactStopLoss = _.floor(price, 3) - ((_.floor(price, 3) * percentageLoss) / 100);
-  return _.floor(exactStopLoss, 2);
+  const exactStopLoss = _.floor(price, 8) - ((_.floor(price, 8) * percentageLoss) / 100);
+  return _.floor(exactStopLoss, 8);
 };
 
 const buyCoin = async (
@@ -155,32 +157,41 @@ const buyCoin = async (
   percentage,
   precision,
 ) => {
-  const usdtBalance = await getCoinBalance(
+  const btcBalance = await getCoinBalance(
     binanceClient,
-    'USDT',
+    'BTC',
     true,
-    1,
+    5,
   );
-  const coinPriceInUsdt = await getCoinPrice(
-    code,
-    'USDT',
+  console.log('TCL: btcBalance', btcBalance);
+  const coinPriceInBtc = await getCoinPrice(
     binanceClient,
+    code,
+    'BTC',
   );
-  const stopLossPrice = getStopLossPrice(2, coinPriceInUsdt);
+  console.log('TCL: coinPriceInBtc', coinPriceInBtc);
+  const stopLossPrice = getStopLossPrice(percentage, coinPriceInBtc);
+  console.log('TCL: stopLossPrice', stopLossPrice);
   const coinPotentialQuantity = caclulatePotentialQuantity(
-    usdtBalance,
-    coinPriceInUsdt,
+    btcBalance,
+    coinPriceInBtc,
     percentage,
     round,
     precision,
   );
+  console.log('TCL: coinPotentialQuantity', coinPotentialQuantity);
+  const buyReport = {
+    btcBalance,
+    coinPriceInBtc,
+    coinPotentialQuantity,
+  };
   if (
-    usdtBalance
-      && usdtBalance > 50
-      && coinPriceInUsdt
+    btcBalance
+      && btcBalance > 0
+      && coinPriceInBtc
       && coinPotentialQuantity
   ) {
-    const buyReport = await marketBuy(
+    const binanceBuyReport = await marketBuy(
       binanceClient,
       code,
       round,
@@ -188,8 +199,12 @@ const buyCoin = async (
       stopLossPrice,
       coinPotentialQuantity,
     );
-    return buyReport;
+    return {
+      ...binanceBuyReport,
+      ...buyReport,
+    };
   }
+  console.log('Returning false');
   return false;
 };
 
@@ -199,10 +214,10 @@ const marketSell = (
   coinBalance,
 ) => new Promise<any>((resolve, reject) => {
   console.log(
-    `Preparing to sell: ${code.toUpperCase()}USDT from balance: ${coinBalance}`,
+    `Preparing to sell: ${code.toUpperCase()}BTC from balance: ${coinBalance}`,
   );
   binanceClient.marketSell(
-    `${code.toUpperCase()}USDT`,
+    `${code.toUpperCase()}BTC`,
     coinBalance,
     {
       type: 'MARKET',
