@@ -14,12 +14,14 @@ import {
   storeApiKey,
   getApiKey,
   getBalance,
+  getTrades,
   setStatus,
 } from './actions';
 
 const ipc = createIpc({
   storeApiKey,
   getApiKey,
+  getTrades,
   getBalance,
   setStatus,
 });

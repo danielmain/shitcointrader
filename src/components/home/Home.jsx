@@ -60,6 +60,10 @@ const Home = (props: LoginProps) => {
 
   const getApiKey = _.get(props, 'getApiKey');
   const keys = _.get(props, 'keys', false);
+
+  const getTrades = _.get(props, 'getTrades');
+  const trades = _.get(props, 'trades', []);
+
   const statusCode = _.get(props, 'status.code', false);
   const status = _.get(props, 'status', { code: 0 });
 
@@ -70,6 +74,14 @@ const Home = (props: LoginProps) => {
       setOpenLogin(true);
     }
   }, [keys, statusCode]);
+
+  useEffect(() => {
+    if (_.isEmpty(trades) && !keys) {
+      console.log('Calling getTrades()');
+      getTrades();
+    }
+    console.log('TCL: Home -> trades', trades);
+  }, trades);
 
   useEffect(() => {
     if (_.get(status, 'msg', false)) {
@@ -107,22 +119,24 @@ const Home = (props: LoginProps) => {
           )
           : null
         }
-        { (keys) ? (
-          <div>
-            <Fab
-              size="medium"
-              color="secondary"
-              aria-label="Add"
-              className={classes.margin}
-              onClick={() => setOpenAddTrade(true)}
-            >
-              <AddIcon />
-            </Fab>
+
+        <div>
+          <Fab
+            size="medium"
+            color="secondary"
+            aria-label="Add"
+            className={classes.margin}
+            onClick={() => setOpenAddTrade(true)}
+          >
+            <AddIcon />
+          </Fab>
+        </div>
+
+        { (!_.isEmpty(trades)) ? (
+          <div className={classes.tradingContainer}>
+            <TradeStatus trades={trades} />
           </div>
         ) : null }
-        <div className={classes.tradingContainer}>
-          <TradeStatus />
-        </div>
       </div>
     </MuiThemeProvider>
   );
@@ -134,6 +148,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   setStatus: status => dispatch(send('setStatus', status)),
   getApiKey: () => dispatch(send('getApiKey')),
+  getTrades: () => dispatch(send('getTrades')),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

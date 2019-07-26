@@ -244,9 +244,10 @@ ipcMain.on('buyCoin', async (event, { coin, amount, stopLoss }) => {
 ipcMain.on('getTrades', async () => {
   try {
     const trades = await getTradesFromDb();
-    console.log('TCL: trades', trades);
-    if (trades) {
-    //   ipcReduxSend('setStatus', { code: 202, msg: 'Getting trades ok' });
+    console.log('TCL: trades');
+    if (!_.isEmpty(trades)) {
+      // console.dir(trades);
+      //   ipcReduxSend('setStatus', { code: 202, msg: 'Getting trades ok' });
       ipcReduxSend('getTrades', trades);
     // } else {
     //   ipcReduxSend('setStatus', { code: 404, msg: 'No Api Keys stored' });
