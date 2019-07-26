@@ -29,6 +29,12 @@ const reducers = (state = {}, action) => {
       ...state,
       balance: _.get(action, 'payload', {}),
     };
+  case 'GET_TRADES':
+    console.log('reducers=> GET_TRADES', action);
+    return {
+      ...state,
+      trades: _.get(action, 'payload', {}),
+    };
   case 'BUY_COIN':
     console.log('reducers=> BUY_COIN', action);
     return {

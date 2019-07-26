@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { send } from 'redux-electron-ipc';
 import { connect } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
@@ -29,54 +29,65 @@ function createData(name, calories, fat, carbs, protein) {
   return { name, calories, fat, carbs, protein };
 }
 
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Gingerbread', 356, 16.0, 49, 3.9),
-];
-
 const TradeStatus = (props) => {
   const classes = useStyles();
-  const status = _.get(props, 'status.code', { code: 0 });
+  const getTrades = _.get(props, 'getTrades');
+  const statusCode = _.get(props, 'status.code', false);
+  const trades = _.get(props, 'trades', []);
+  console.log('TCL: TradeStatus -> trades', trades);
+  let rows = [];
 
-  if (_.get(status, 'msg', false)) {
-    alert(_.get(status, 'msg'));
-  }
+  useEffect(() => {
+    if (_.isEmpty(trades)) {
+      console.log('Calling getTrades()');
+      getTrades();
+    } else {
+      rows = _.map(trades, trade => createData(
+        trade.symbol,
+        trade.orderId,
+        trade.origQty,
+        trade.status,
+        trade.coinPriceInBtc,
+      ));
+    }
+  }, trades);
 
   return (
-    <Paper className={classes.padding}>
-      <Typography variant="h5" component="h3">
+    <React.Fragment>
+      {!_.isEmpty(trades) ? (
+        <Paper className={classes.padding}>
+          <Typography variant="h5" component="h3">
           BTC/XRP
-      </Typography>
-      <Typography component="p">
-        <Table className={classes.table}>
-          <TableHead>
-            <TableRow>
-              <TableCell>Dessert (100g serving)</TableCell>
-              <TableCell align="right">Calories</TableCell>
-              <TableCell align="right">Fat&nbsp;(g)</TableCell>
-              <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-              <TableCell align="right">Protein&nbsp;(g)</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map(row => (
-              <TableRow key={row.name}>
-                <TableCell component="th" scope="row">
-                  {row.name}
-                </TableCell>
-                <TableCell align="right">{row.calories}</TableCell>
-                <TableCell align="right">{row.fat}</TableCell>
-                <TableCell align="right">{row.carbs}</TableCell>
-                <TableCell align="right">{row.protein}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Typography>
-    </Paper>
+          </Typography>
+          <Typography component="p">
+            <Table className={classes.table}>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Symbol</TableCell>
+                  <TableCell align="right">Order ID</TableCell>
+                  <TableCell align="right">Quantity</TableCell>
+                  <TableCell align="right">Status</TableCell>
+                  <TableCell align="right">Price used</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows.map(row => (
+                  <TableRow key={row.symbol}>
+                    <TableCell component="th" scope="row">
+                      {row.symbol}
+                    </TableCell>
+                    <TableCell align="right">{row.orderId}</TableCell>
+                    <TableCell align="right">{row.origQty}</TableCell>
+                    <TableCell align="right">{row.status}</TableCell>
+                    <TableCell align="right">{row.coinPriceInBtc}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Typography>
+        </Paper>
+      ) : null}
+    </React.Fragment>
   );
 };
 
@@ -85,7 +96,7 @@ const mapStateToProps = state => ({
 });
 const mapDispatchToProps = dispatch => ({
   setStatus: status => dispatch(send('setStatus', status)),
-  getApiKey: () => dispatch(send('getApiKey')),
+  getTrades: () => dispatch(send('getTrades')),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(TradeStatus);

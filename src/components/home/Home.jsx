@@ -107,17 +107,19 @@ const Home = (props: LoginProps) => {
           )
           : null
         }
-        <div>
-          <Fab
-            size="medium"
-            color="secondary"
-            aria-label="Add"
-            className={classes.margin}
-            onClick={() => setOpenAddTrade(true)}
-          >
-            <AddIcon />
-          </Fab>
-        </div>
+        { (keys) ? (
+          <div>
+            <Fab
+              size="medium"
+              color="secondary"
+              aria-label="Add"
+              className={classes.margin}
+              onClick={() => setOpenAddTrade(true)}
+            >
+              <AddIcon />
+            </Fab>
+          </div>
+        ) : null }
         <div className={classes.tradingContainer}>
           <TradeStatus />
         </div>

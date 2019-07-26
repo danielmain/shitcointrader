@@ -124,6 +124,16 @@ const getKeysFromDb = async () => {
   return false;
 };
 
+const getTradesFromDb = async () => {
+  try {
+    const tradingCollection = await DatabaseHandler.getTradingCollection(app);
+    return await tradingCollection.find({});
+  } catch (error) {
+    console.error(error);
+  }
+  return false;
+};
+
 const getBinanceClient = async () => {
   const keys = await getKeysFromDb();
   if (keys) {
@@ -163,7 +173,7 @@ ipcMain.on('storeApiKey', async (event, keys) => {
   }
 });
 
-ipcMain.on('getApiKey', async (event) => {
+ipcMain.on('getApiKey', async () => {
   try {
     const keys = await getKeysFromDb();
     if (_.get(keys, '[0].apiKey', false)) {
@@ -228,6 +238,21 @@ ipcMain.on('buyCoin', async (event, { coin, amount, stopLoss }) => {
       console.error(error);
       ipcReduxSend('setStatus', extractBinanceErrorObject(error));
     }
+  }
+});
+
+ipcMain.on('getTrades', async () => {
+  try {
+    const trades = await getTradesFromDb();
+    console.log('TCL: trades', trades);
+    if (trades) {
+    //   ipcReduxSend('setStatus', { code: 202, msg: 'Getting trades ok' });
+      ipcReduxSend('getTrades', trades);
+    // } else {
+    //   ipcReduxSend('setStatus', { code: 404, msg: 'No Api Keys stored' });
+    }
+  } catch (error) {
+    ipcReduxSend('setStatus', extractBinanceErrorObject(error));
   }
 });
 

@@ -6,23 +6,15 @@ import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Modal from '@material-ui/core/Modal';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
 import Autorenew from '@material-ui/icons/Autorenew';
 import CancelIcon from '@material-ui/icons/Cancel';
-import Input from '@material-ui/core/Input';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import FilledInput from '@material-ui/core/FilledInput';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select'; import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
 import _ from 'lodash';
-import { BUY_COIN } from '../../actions/index';
-
-const logoUri = 'images/binance.png';
 
 const rand = () => Math.round(Math.random() * 20) - 10;
 
@@ -196,14 +188,16 @@ const AddTrade = (props: AddTradeProps) => {
                     }}
                     className={classes.pair}
                   >
+                    <MenuItem value="ADA">BTC/Cardano</MenuItem>
                     <MenuItem value="ARK">BTC/Ark</MenuItem>
                     <MenuItem value="BNB">BTC/Binance Coin</MenuItem>
                     <MenuItem value="LINK">BTC/Chainlink</MenuItem>
                     <MenuItem value="ETH">BTC/Ethereum</MenuItem>
                     <MenuItem value="IOTA">BTC/IOTA</MenuItem>
                     <MenuItem value="LSK">BTC/Lisk</MenuItem>
-                    <MenuItem value="XMR">BTC/Monero</MenuItem>
+                    <MenuItem value="ONT">BTC/Ontology</MenuItem>
                     <MenuItem value="TRX">BTC/Tron</MenuItem>
+                    <MenuItem value="XMR">BTC/Monero</MenuItem>
                     <MenuItem value="XRP">BTC/XRP</MenuItem>
                   </Select>
                 </FormControl>
