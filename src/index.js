@@ -35,6 +35,10 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 1300,
     height: 1000,
+    webPreferences: {
+      allowEval: false,
+      nodeIntegration: true,
+    },
   });
 
   // BrowserWindow.addDevToolsExtension(

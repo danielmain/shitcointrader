@@ -34,7 +34,7 @@ const TradeStatus = (props) => {
           <Typography variant="h5" component="h3">
           BTC/XRP
           </Typography>
-          <Typography component="p">
+          <Typography component="span">
             <Table className={classes.table}>
               <TableHead>
                 <TableRow>

@@ -68,20 +68,23 @@ const Home = (props: LoginProps) => {
   const status = _.get(props, 'status', { code: 0 });
 
   useEffect(() => {
-    if (!_.get(props, 'keys.apiKey', false) && !_.includes([500, 404], statusCode)) {
+    if (!_.get(props, 'keys.apiKey', false) && !_.includes([
+      500, // <- 500 means: backend Error
+      404, // <- 404 means: no keys found in db, setOpenLogin Dialog should be opened
+      202, // <- 202 means: keys were found, no need to call getApiKey
+    ], statusCode)) {
       getApiKey();
     } else if (!_.get(props, 'keys.apiKey', false) && _.includes([500, 404], statusCode)) {
       setOpenLogin(true);
     }
-  }, [keys, statusCode]);
-
-  useEffect(() => {
-    if (_.isEmpty(trades) && !keys) {
-      console.log('Calling getTrades()');
+    if (_.isEmpty(trades) && keys) {
       getTrades();
     }
-    console.log('TCL: Home -> trades', trades);
-  }, trades);
+  }, [
+    keys,
+    statusCode,
+    trades,
+  ]);
 
   useEffect(() => {
     if (_.get(status, 'msg', false)) {
