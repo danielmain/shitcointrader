@@ -268,6 +268,15 @@ const sellCoin = async (
   return false;
 };
 
+const getOpenOrders = async (
+  binanceClient: Binance,
+) => new Promise<any>((resolve, reject) => {
+  binanceClient.openOrders(false, (error, openOrders) => {
+    if (error) reject(error);
+    resolve(openOrders);
+  });
+});
+
 const BinanceHandler = {
   getCoinPrice,
   getCoinBalance,
@@ -276,6 +285,7 @@ const BinanceHandler = {
   getStopLossPrice,
   checkCredentials,
   getBinanceClient,
+  getOpenOrders,
   buyCoin,
   sellCoin,
 };

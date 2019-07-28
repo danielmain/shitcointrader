@@ -135,7 +135,7 @@ const getTradesFromDb = async () => {
   } catch (error) {
     console.error(error);
   }
-  return false;
+  return [];
 };
 
 const getBinanceClient = async () => {
@@ -247,15 +247,11 @@ ipcMain.on('buyCoin', async (event, { coin, amount, stopLoss }) => {
 
 ipcMain.on('getTrades', async () => {
   try {
-    const trades = await getTradesFromDb();
-    console.log('TCL: trades');
-    if (!_.isEmpty(trades)) {
-      // console.dir(trades);
-      //   ipcReduxSend('setStatus', { code: 202, msg: 'Getting trades ok' });
-      ipcReduxSend('getTrades', trades);
-    // } else {
-    //   ipcReduxSend('setStatus', { code: 404, msg: 'No Api Keys stored' });
-    }
+    const tradesFromDb = await getTradesFromDb();
+    const binanceClient = await getBinanceClient();
+    const tradesFromBinance = await BinanceHandler.getOpenOrders(binanceClient);
+    const trades = tradesFromDb;
+    ipcReduxSend('getTrades', trades);
   } catch (error) {
     ipcReduxSend('setStatus', extractBinanceErrorObject(error));
   }
