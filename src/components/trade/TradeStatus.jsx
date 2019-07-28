@@ -23,6 +23,11 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+const formatSymbol = (symbol) => {
+  const parts = _.split(symbol, 'BTC', 2);
+  return `${parts[0]}/BTC`;
+};
+
 const TradeStatus = (props) => {
   const classes = useStyles();
   const trades = _.get(props, 'trades', []);
@@ -31,30 +36,23 @@ const TradeStatus = (props) => {
     <React.Fragment>
       {!_.isEmpty(trades) ? (
         <Paper className={classes.padding}>
-          <Typography variant="h5" component="h3">
-          BTC/XRP
-          </Typography>
           <Typography component="span">
             <Table className={classes.table}>
               <TableHead>
                 <TableRow>
-                  <TableCell>Order ID</TableCell>
-                  <TableCell align="right">Symbol</TableCell>
+                  <TableCell>Symbol</TableCell>
+                  <TableCell align="right">Purchased price</TableCell>
                   <TableCell align="right">Quantity</TableCell>
-                  <TableCell align="right">Status</TableCell>
-                  <TableCell align="right">Price used</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {trades.map(row => (
                   <TableRow key={row.orderId}>
                     <TableCell component="th" scope="row">
-                      {row.orderId}
+                      {formatSymbol(row.symbol)}
                     </TableCell>
-                    <TableCell align="right">{row.symbol}</TableCell>
-                    <TableCell align="right">{row.origQty}</TableCell>
-                    <TableCell align="right">{row.status}</TableCell>
                     <TableCell align="right">{row.coinPriceInBtc}</TableCell>
+                    <TableCell align="right">{row.origQty}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
