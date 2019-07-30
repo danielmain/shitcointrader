@@ -152,6 +152,17 @@ const getBinanceClient = async () => {
   return null;
 };
 
+const extractBtcFromCoinSymbol = symbol => symbol.replace(/BTC/g, '');
+
+const isOperationStillValid = async (trade, binanceClient) => {
+  const coinCode = extractBtcFromCoinSymbol(trade.symbol);
+  const balance = await BinanceHandler.getBalancePromise(
+    coinCode,
+    binanceClient,
+  );
+  return (trade.origQty === balance);
+};
+
 ipcMain.on('storeApiKey', async (event, keys) => {
   const isKeyValid = value => (!_.isEmpty(value) && value.length === 64);
   const apiKey = _.get(keys, 'apiKey', API_KEY);
@@ -223,7 +234,6 @@ ipcMain.on('buyCoin', async (event, { coin, amount, stopLoss }) => {
           amount,
           0,
         );
-        console.log('TCL: report', report);
 
         const orderId = _.get(report, 'orderId', false);
         if (orderId) {
@@ -250,8 +260,13 @@ ipcMain.on('getTrades', async () => {
     const tradesFromDb = await getTradesFromDb();
     const binanceClient = await getBinanceClient();
     const tradesFromBinance = await BinanceHandler.getOpenOrders(binanceClient);
-    const trades = tradesFromDb;
-    ipcReduxSend('getTrades', trades);
+    const trades = _.unionBy(tradesFromDb, tradesFromBinance, 'orderId');
+    const validatedTrades = await Promise.all(_.map(trades, async trade => ({
+      ...trade,
+      coin: extractBtcFromCoinSymbol(trade.symbol),
+      valid: await isOperationStillValid(trade, binanceClient),
+    })));
+    ipcReduxSend('getTrades', validatedTrades);
   } catch (error) {
     ipcReduxSend('setStatus', extractBinanceErrorObject(error));
   }

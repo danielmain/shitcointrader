@@ -116,6 +116,6 @@ test('Get ETH Balance', async () => {
 test('Get open oders', async () => {
   const orders = await BinanceHandler.getOpenOrders(binanceClient);
   console.log('orders', orders);
-  // expect(orders).not.toBeUndefined();
-  expect(orders).toBe([{ a: true }]);
+  expect(orders).not.toBeUndefined();
+  expect(orders[0].orderId).not.toBeUndefined();
 });

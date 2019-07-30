@@ -268,9 +268,9 @@ const sellCoin = async (
   return false;
 };
 
-const getOpenOrders = async (
+const getOpenOrders = (
   binanceClient: Binance,
-) => new Promise<any>((resolve, reject) => {
+): Promise<any> => new Promise((resolve, reject) => {
   binanceClient.openOrders(false, (error, openOrders) => {
     if (error) reject(error);
     resolve(openOrders);
