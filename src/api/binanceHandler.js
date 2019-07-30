@@ -9,23 +9,29 @@ const getTime = () => {
   return dt.format('Y-m-d H:M:S');
 };
 
-const getBalancePromise = (
-  code: string,
+const getCoinsBalance = (
+  codes: [string],
   binanceClient: any,
-): Promise<number> => new Promise((resolve, reject) => binanceClient.balance((error, balances) => {
+): Promise<[any]> => new Promise((resolve, reject) => binanceClient.balance((
+  error,
+  balanceResponse,
+) => {
   if (error) {
     console.error(error);
     reject(error);
   }
-  const balance = _.get(
-    balances,
-    `${code.toUpperCase()}.available`,
-    false,
-  );
-  if (!balance) {
-    reject(new Error(`Cannot get balance for ${code}`));
+  const balances = _.map(codes, code => ({
+    code,
+    balance: _.get(
+      balanceResponse,
+      `${code}.available`,
+      0,
+    ),
+  }));
+  if (!_.isArray(balances)) {
+    reject(new Error('Cannot get balances'));
   } else {
-    resolve(balance);
+    resolve(balances);
   }
 }));
 
@@ -35,11 +41,11 @@ const getCoinBalance = async (
   round: boolean,
   precision: number,
 ) => {
-  const balances = await getBalancePromise(
-    code.toUpperCase(),
+  const balances = await getCoinsBalance(
+    [code],
     binanceClient,
   );
-  const balanceExactNumber = _.toNumber(balances);
+  const balanceExactNumber = _.toNumber(balances[0].balance);
   if (round) {
     return _.floor(balanceExactNumber, precision);
   }
@@ -57,7 +63,7 @@ const getBinanceClient = async (APIKEY: string, APISECRET: string) => {
 };
 
 const checkCredentials = async (APIKEY: string, APISECRET: string) => {
-  const balance = await getBalancePromise('BTC', await getBinanceClient(APIKEY, APISECRET));
+  const balance = await getCoinsBalance(['BTC'], await getBinanceClient(APIKEY, APISECRET));
   return _.isEmpty(balance)
     ? { code: 500, msg: 'Error getting balance' }
     : { code: 200, msg: 'Credentials ok' };
@@ -280,7 +286,7 @@ const getOpenOrders = (
 const BinanceHandler = {
   getCoinPrice,
   getCoinBalance,
-  getBalancePromise,
+  getCoinsBalance,
   caclulatePotentialQuantity,
   getStopLossPrice,
   checkCredentials,

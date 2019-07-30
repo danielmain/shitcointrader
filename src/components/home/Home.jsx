@@ -64,6 +64,10 @@ const Home = (props: LoginProps) => {
   const getTrades = _.get(props, 'getTrades');
   const trades = _.get(props, 'trades', []);
 
+  const getBalances = _.get(props, 'getBalances');
+  const balances = _.get(props, 'balances', []);
+  console.log('TCL: Home -> balances', balances);
+
   const statusCode = _.get(props, 'status.code', false);
   const status = _.get(props, 'status', { code: 0 });
 
@@ -79,6 +83,7 @@ const Home = (props: LoginProps) => {
     }
     if (_.isEmpty(trades) && keys) {
       getTrades();
+      getBalances();
     }
   }, [
     keys,
@@ -152,6 +157,7 @@ const mapDispatchToProps = dispatch => ({
   setStatus: status => dispatch(send('setStatus', status)),
   getApiKey: () => dispatch(send('getApiKey')),
   getTrades: () => dispatch(send('getTrades')),
+  getBalances: () => dispatch(send('getBalances')),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

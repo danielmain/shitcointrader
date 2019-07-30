@@ -108,7 +108,7 @@ test('Get BTC/ETH Price', async () => {
 });
 
 test('Get ETH Balance', async () => {
-  const balance = await BinanceHandler.getBalancePromise('ETH', binanceClient);
+  const balance = await BinanceHandler.getCoinsBalance(['ETH'], binanceClient);
   console.log('balance', balance);
   expect(balance).not.toBeUndefined();
 });

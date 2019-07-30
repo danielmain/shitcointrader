@@ -1,11 +1,12 @@
 // @flow
 import _ from 'lodash';
-
+import { listCoins, coinList } from './statics/coins';
 // Binance stuff ------------------------------------ //
 import BinanceHandler from './api/binanceHandler';
 
 // Database stuff ------------------------------------ //
 import DatabaseHandler from './api/databaseHandler';
+
 
 const API_KEY = _.get(process, 'env.API_KEY', null);
 const API_SECRET = _.get(
@@ -154,15 +155,6 @@ const getBinanceClient = async () => {
 
 const extractBtcFromCoinSymbol = symbol => symbol.replace(/BTC/g, '');
 
-const isOperationStillValid = async (trade, binanceClient) => {
-  const coinCode = extractBtcFromCoinSymbol(trade.symbol);
-  const balance = await BinanceHandler.getBalancePromise(
-    coinCode,
-    binanceClient,
-  );
-  return (trade.origQty === balance);
-};
-
 ipcMain.on('storeApiKey', async (event, keys) => {
   const isKeyValid = value => (!_.isEmpty(value) && value.length === 64);
   const apiKey = _.get(keys, 'apiKey', API_KEY);
@@ -264,9 +256,21 @@ ipcMain.on('getTrades', async () => {
     const validatedTrades = await Promise.all(_.map(trades, async trade => ({
       ...trade,
       coin: extractBtcFromCoinSymbol(trade.symbol),
-      valid: await isOperationStillValid(trade, binanceClient),
     })));
     ipcReduxSend('getTrades', validatedTrades);
+  } catch (error) {
+    ipcReduxSend('setStatus', extractBinanceErrorObject(error));
+  }
+});
+
+ipcMain.on('getBalances', async () => {
+  try {
+    const binanceClient = await getBinanceClient();
+    const balances = await BinanceHandler.getCoinsBalance(
+      coinList,
+      binanceClient,
+    );
+    ipcReduxSend('getBalances', balances);
   } catch (error) {
     ipcReduxSend('setStatus', extractBinanceErrorObject(error));
   }

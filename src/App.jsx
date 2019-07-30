@@ -14,8 +14,11 @@ import {
   storeApiKey,
   getApiKey,
   getBalance,
+  getBalances,
   getTrades,
   setStatus,
+  buyCoin,
+  sellCoin,
 } from './actions';
 
 const ipc = createIpc({
@@ -23,7 +26,10 @@ const ipc = createIpc({
   getApiKey,
   getTrades,
   getBalance,
+  getBalances,
   setStatus,
+  buyCoin,
+  sellCoin,
 });
 
 const store = createStore(reducers, applyMiddleware(ipc));

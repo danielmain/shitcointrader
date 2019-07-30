@@ -1,4 +1,6 @@
 import React from 'react';
+import { send } from 'redux-electron-ipc';
+import { connect } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
@@ -7,6 +9,7 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import Button from '@material-ui/core/Button';
 import _ from 'lodash';
 
 const useStyles = makeStyles(theme => ({
@@ -17,6 +20,9 @@ const useStyles = makeStyles(theme => ({
   },
   table: {
     minWidth: 650,
+  },
+  margin: {
+    margin: theme.spacing(1),
   },
   padding: {
     padding: theme.spacing(1),
@@ -31,6 +37,11 @@ const formatSymbol = (symbol) => {
 const TradeStatus = (props) => {
   const classes = useStyles();
   const trades = _.get(props, 'trades', []);
+  const sellCoin = _.get(props, 'sellCoin');
+
+  const sell = (coinSymbol) => {
+    sellCoin(coinSymbol);
+  };
 
   return (
     <React.Fragment>
@@ -43,6 +54,7 @@ const TradeStatus = (props) => {
                   <TableCell>Symbol</TableCell>
                   <TableCell align="right">Purchased price</TableCell>
                   <TableCell align="right">Quantity</TableCell>
+                  <TableCell align="center" className={classes.margin}>Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -53,6 +65,17 @@ const TradeStatus = (props) => {
                     </TableCell>
                     <TableCell align="right">{row.coinPriceInBtc}</TableCell>
                     <TableCell align="right">{row.origQty}</TableCell>
+                    <TableCell align="center">
+                      <Button
+                        variant="contained"
+                        size="small"
+                        color="primary"
+                        className={classes.margin}
+                        onClick={() => sell(row.coin)}
+                      >
+                        Sell
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -64,4 +87,11 @@ const TradeStatus = (props) => {
   );
 };
 
-export default TradeStatus;
+const mapStateToProps = state => ({
+  ...state,
+});
+const mapDispatchToProps = dispatch => ({
+  sellCoin: coinSymbol => dispatch(send('sellCoin', coinSymbol)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(TradeStatus);
