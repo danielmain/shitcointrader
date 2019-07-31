@@ -20,11 +20,11 @@ const getCoinsBalance = (
     console.error(error);
     reject(error);
   }
-  const balances = _.map(codes, code => ({
-    code,
+  const balances = _.map(codes, coin => ({
+    code: _.get(coin, 'code'),
     balance: _.get(
       balanceResponse,
-      `${code}.available`,
+      `${_.get(coin, 'code')}.available`,
       0,
     ),
   }));

@@ -29,14 +29,9 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const formatSymbol = (symbol) => {
-  const parts = _.split(symbol, 'BTC', 2);
-  return `${parts[0]}/BTC`;
-};
-
 const TradeStatus = (props) => {
   const classes = useStyles();
-  const trades = _.get(props, 'trades', []);
+  const balances = _.get(props, 'balances', []);
   const sellCoin = _.get(props, 'sellCoin');
 
   const sell = (coinSymbol) => {
@@ -45,33 +40,31 @@ const TradeStatus = (props) => {
 
   return (
     <React.Fragment>
-      {!_.isEmpty(trades) ? (
+      {!_.isEmpty(balances) ? (
         <Paper className={classes.padding}>
           <Typography component="span">
             <Table className={classes.table}>
               <TableHead>
                 <TableRow>
-                  <TableCell>Symbol</TableCell>
-                  <TableCell align="right">Purchased price</TableCell>
+                  <TableCell>Coin</TableCell>
                   <TableCell align="right">Quantity</TableCell>
                   <TableCell align="center" className={classes.margin}>Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {trades.map(row => (
-                  <TableRow key={row.orderId}>
+                {balances.map(row => (
+                  <TableRow key={row.code}>
                     <TableCell component="th" scope="row">
-                      {formatSymbol(row.symbol)}
+                      {`${row.code}/BTC`}
                     </TableCell>
-                    <TableCell align="right">{row.coinPriceInBtc}</TableCell>
-                    <TableCell align="right">{row.origQty}</TableCell>
+                    <TableCell align="right">{row.balance}</TableCell>
                     <TableCell align="center">
                       <Button
                         variant="contained"
                         size="small"
                         color="primary"
                         className={classes.margin}
-                        onClick={() => sell(row.coin)}
+                        onClick={() => sell(row.code)}
                       >
                         Sell
                       </Button>

@@ -61,12 +61,11 @@ const Home = (props: LoginProps) => {
   const getApiKey = _.get(props, 'getApiKey');
   const keys = _.get(props, 'keys', false);
 
-  const getTrades = _.get(props, 'getTrades');
-  const trades = _.get(props, 'trades', []);
+  // const getTrades = _.get(props, 'getTrades');
+  // const trades = _.get(props, 'trades', []);
 
   const getBalances = _.get(props, 'getBalances');
   const balances = _.get(props, 'balances', []);
-  console.log('TCL: Home -> balances', balances);
 
   const statusCode = _.get(props, 'status.code', false);
   const status = _.get(props, 'status', { code: 0 });
@@ -81,14 +80,14 @@ const Home = (props: LoginProps) => {
     } else if (!_.get(props, 'keys.apiKey', false) && _.includes([500, 404], statusCode)) {
       setOpenLogin(true);
     }
-    if (_.isEmpty(trades) && keys) {
-      getTrades();
+    if (_.isEmpty(balances) && keys) {
+      // getTrades();
       getBalances();
     }
   }, [
     keys,
     statusCode,
-    trades,
+    balances,
   ]);
 
   useEffect(() => {
@@ -140,9 +139,9 @@ const Home = (props: LoginProps) => {
           </Fab>
         </div>
 
-        { (!_.isEmpty(trades)) ? (
+        { (!_.isEmpty(balances)) ? (
           <div className={classes.tradingContainer}>
-            <TradeStatus trades={trades} />
+            <TradeStatus balances={balances} />
           </div>
         ) : null }
       </div>
