@@ -33,6 +33,7 @@ const TradeStatus = (props) => {
   const classes = useStyles();
   const balances = _.get(props, 'balances', []);
   const sellCoin = _.get(props, 'sellCoin');
+  const setStopLoss = _.get(props, 'setStopLoss');
 
   const sell = (coinSymbol) => {
     sellCoin(coinSymbol);
@@ -48,16 +49,22 @@ const TradeStatus = (props) => {
                 <TableRow>
                   <TableCell>Coin</TableCell>
                   <TableCell align="right">Quantity</TableCell>
+                  <TableCell align="right">Price in BTC</TableCell>
+                  <TableCell align="right">Dollar</TableCell>
+                  <TableCell align="right">Stop Loss</TableCell>
                   <TableCell align="center" className={classes.margin}>Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {balances.map(row => (
+                {_.map(_.filter(balances, { low: false }), row => (
                   <TableRow key={row.code}>
                     <TableCell component="th" scope="row">
                       {`${row.code}/BTC`}
                     </TableCell>
                     <TableCell align="right">{row.balance}</TableCell>
+                    <TableCell align="right">{row.priceinBtc}</TableCell>
+                    <TableCell align="right">{row.priceInUsd}</TableCell>
+                    <TableCell align="right">{row.stopLoss}</TableCell>
                     <TableCell align="center">
                       <Button
                         variant="contained"
@@ -67,6 +74,15 @@ const TradeStatus = (props) => {
                         onClick={() => sell(row.code)}
                       >
                         Sell
+                      </Button>
+                      <Button
+                        variant="contained"
+                        size="small"
+                        color="primary"
+                        className={classes.margin}
+                        onClick={() => setStopLoss(row.code)}
+                      >
+                        Stop Loss
                       </Button>
                     </TableCell>
                   </TableRow>

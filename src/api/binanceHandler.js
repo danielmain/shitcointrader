@@ -1,6 +1,7 @@
 // @flow
 import _ from 'lodash';
 import Binance from 'node-binance-api';
+import { BigNumber } from 'bignumber.js';
 import dateTime from 'node-datetime';
 import cj from 'color-json';
 
@@ -74,17 +75,16 @@ const getCoinPricePromise = (
   code: string,
   pair: string = 'BTC',
 ): Promise<number> => new Promise((resolve, reject) => binanceClient.prices(`${code}${pair}`, (error, ticker) => {
-  console.log('TCL: code', code);
   if (error) {
     reject(new Error(`Error getting ticker for coin ${code}:${JSON.stringify(error)}`));
   }
-  const priceStr = _.get(ticker, `${code}BTC`, false);
+  const priceStr = _.get(ticker, `${code}${pair}`, false);
   if (!priceStr) {
-    reject(new Error(`${code}BTC not found, ${JSON.stringify(ticker)}`));
+    reject(new Error(`${code}${pair} not found, ${JSON.stringify(ticker)}`));
   }
   const price = _.toNumber(priceStr);
   if (!price || price === 0) {
-    reject(new Error(`${code}BTC is not valid ==> ${price}`));
+    reject(new Error(`${code}${pair} is not valid ==> ${price}`));
   } else {
     resolve(_.toNumber(priceStr));
   }
@@ -283,6 +283,21 @@ const getOpenOrders = (
   });
 });
 
+const getCoinPriceCalculatedFromAmount = async (
+  binanceClient: Binance,
+  baseCoin: string,
+  coinToBeCalculated: string,
+  amount: number,
+  fixedPoint: number = 6,
+):Promise<number> => {
+  const unitPrice = _.toNumber(await getCoinPrice(
+    binanceClient,
+    coinToBeCalculated,
+    baseCoin,
+  ));
+  const result = new BigNumber(unitPrice * amount);
+  return _.toNumber(result.toFixed(fixedPoint));
+};
 const BinanceHandler = {
   getCoinPrice,
   getCoinBalance,
@@ -291,6 +306,7 @@ const BinanceHandler = {
   getStopLossPrice,
   checkCredentials,
   getBinanceClient,
+  getCoinPriceCalculatedFromAmount,
   getOpenOrders,
   buyCoin,
   sellCoin,

@@ -81,6 +81,7 @@
   "dependencies": {
     "@material-ui/core": "^4.3.0",
     "@material-ui/icons": "^4.2.1",
+    "bignumber.js": "^9.0.0",
     "clsx": "^1.0.4",
     "color-json": "^2.0.0",
     "electron": "^6.0.0",

@@ -1,5 +1,6 @@
 // @flow
 import _ from 'lodash';
+
 import { listCoins, coinList } from './statics/coins';
 // Binance stuff ------------------------------------ //
 import BinanceHandler from './api/binanceHandler';
@@ -270,7 +271,31 @@ ipcMain.on('getBalances', async () => {
       coinList,
       binanceClient,
     );
-    ipcReduxSend('getBalances', balances);
+    const enrichedBalances = await Promise.all(_.map(balances, async (balance) => {
+      const priceinBtc = await BinanceHandler.getCoinPriceCalculatedFromAmount(
+        binanceClient,
+        'BTC',
+        balance.code,
+        balance.balance,
+        6,
+      );
+      const priceInUsd = await BinanceHandler.getCoinPriceCalculatedFromAmount(
+        binanceClient,
+        'USDT',
+        'BTC',
+        priceinBtc,
+        1,
+      );
+      const returnValue = {
+        ...balance,
+        priceinBtc,
+        priceInUsd,
+        stopLoss: 0.2,
+        low: (priceInUsd < 1),
+      };
+      return returnValue;
+    }));
+    ipcReduxSend('getBalances', enrichedBalances);
   } catch (error) {
     ipcReduxSend('setStatus', extractBinanceErrorObject(error));
   }
