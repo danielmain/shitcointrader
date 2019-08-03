@@ -10,6 +10,9 @@ import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import Fab from '@material-ui/core/Fab';
 import lime from '@material-ui/core/colors/lime';
+import BlockUi from 'react-block-ui';
+import from 'react-block-ui/style.css';
+
 import _ from 'lodash';
 import Login from '../login';
 import { TradeStatus, AddTrade } from '../trade';
@@ -71,23 +74,22 @@ const Home = (props: LoginProps) => {
   const status = _.get(props, 'status', { code: 0 });
 
   useEffect(() => {
-    if (!_.get(props, 'keys.apiKey', false) && !_.includes([
-      500, // <- 500 means: backend Error
-      404, // <- 404 means: no keys found in db, setOpenLogin Dialog should be opened
-      202, // <- 202 means: keys were found, no need to call getApiKey
-    ], statusCode)) {
+    if (!_.get(props, 'keys.apiKey')) {
       getApiKey();
-    } else if (!_.get(props, 'keys.apiKey', false) && _.includes([500, 404], statusCode)) {
-      setOpenLogin(true);
     }
-    if (_.isEmpty(balances) && keys) {
-      // getTrades();
-      getBalances();
-    }
+    // else {
+    //   console.dir(props);
+    //   console.log('Opening Login');
+    //   setOpenLogin(true);
+    // }
+    // if (_.isEmpty(balances) && keys) {
+    //   // getTrades();
+    //   // getBalances();
+    // }
   }, [
     keys,
-    statusCode,
-    balances,
+    // statusCode,
+    // balances,
   ]);
 
   useEffect(() => {
@@ -100,50 +102,52 @@ const Home = (props: LoginProps) => {
     <MuiThemeProvider theme={theme}>
       <div className={classes.root}>
         <CssBaseline />
-        <AppBar position="static">
-          <Toolbar>
-            <Typography variant="h6" className={classes.title}>
+        <BlockUi tag="div" blocking={!keys}>
+          <AppBar position="static">
+            <Toolbar>
+              <Typography variant="h6" className={classes.title}>
               Shitcoin Trader
-            </Typography>
-            <Button variant="contained" onClick={() => setOpenLogin(true)}>Binance Keys</Button>
-          </Toolbar>
-        </AppBar>
-        { openLogin
-          ? (
-            <Login
-              open={openLogin}
-              keys={keys}
-              handleClose={() => setOpenLogin(false)}
-            />
-          ) : null
-        }
-        { openAddTrade
-          ? (
-            <AddTrade
-              open={openAddTrade}
-              handleClose={() => setOpenAddTrade(false)}
-            />
-          )
-          : null
-        }
+              </Typography>
+              <Button variant="contained" onClick={() => setOpenLogin(true)}>Binance Keys</Button>
+            </Toolbar>
+          </AppBar>
+          { openLogin
+            ? (
+              <Login
+                open={openLogin}
+                keys={keys}
+                handleClose={() => setOpenLogin(false)}
+              />
+            ) : null
+          }
+          { openAddTrade
+            ? (
+              <AddTrade
+                open={openAddTrade}
+                handleClose={() => setOpenAddTrade(false)}
+              />
+            )
+            : null
+          }
 
-        <div>
-          <Fab
-            size="medium"
-            color="secondary"
-            aria-label="Add"
-            className={classes.margin}
-            onClick={() => setOpenAddTrade(true)}
-          >
-            <AddIcon />
-          </Fab>
-        </div>
-
-        { (!_.isEmpty(balances)) ? (
-          <div className={classes.tradingContainer}>
-            <TradeStatus balances={balances} />
+          <div>
+            <Fab
+              size="medium"
+              color="secondary"
+              aria-label="Add"
+              className={classes.margin}
+              onClick={() => setOpenAddTrade(true)}
+            >
+              <AddIcon />
+            </Fab>
           </div>
-        ) : null }
+
+          { (!_.isEmpty(balances)) ? (
+            <div className={classes.tradingContainer}>
+              <TradeStatus balances={balances} />
+            </div>
+          ) : null }
+        </BlockUi>
       </div>
     </MuiThemeProvider>
   );

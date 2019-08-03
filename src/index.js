@@ -1,13 +1,10 @@
 // @flow
 import _ from 'lodash';
-
-import { listCoins, coinList } from './statics/coins';
+import { coinList } from './statics/coins';
 // Binance stuff ------------------------------------ //
 import BinanceHandler from './api/binanceHandler';
-
-// Database stuff ------------------------------------ //
+// Database stuff ----------------------------------- //
 import DatabaseHandler from './api/databaseHandler';
-
 
 const API_KEY = _.get(process, 'env.API_KEY', null);
 const API_SECRET = _.get(
@@ -31,6 +28,21 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+
+// Application State --------------------------------- //
+const status = {
+  code: 0,
+  msg: '',
+};
+
+const setStatus = (statusObject) => {
+  status.code = statusObject.code;
+  status.msg = statusObject.msg;
+  mainWindow.webContents.send(
+    'updateStatus',
+    new Date(),
+  );
+};
 
 const createWindow = () => {
   // Create the browser window.
@@ -86,10 +98,7 @@ const extractBinanceErrorObject = (error, code = false) => {
 };
 
 process.on('uncaughtException', (error) => {
-  mainWindow.webContents.send(
-    'setStatus',
-    extractBinanceErrorObject(error),
-  );
+  setStatus(extractBinanceErrorObject(error));
 });
 
 const storeKeysInDb = async (apiKey: string, apiSecret: string) => {
@@ -150,11 +159,16 @@ const getBinanceClient = async () => {
       apiSecret,
     );
   }
-  ipcReduxSend('setStatus', { code: 500, msg: 'No keys stored, please set the keys agian' });
+  setStatus({ code: 500, msg: 'No keys stored, please set the keys agian' });
   return null;
 };
 
 const extractBtcFromCoinSymbol = symbol => symbol.replace(/BTC/g, '');
+
+ipcMain.on('getStatus', async (event, status) => {
+  console.log('TCL: status', status);
+  ipcReduxSend('getStatus', status);
+});
 
 ipcMain.on('storeApiKey', async (event, keys) => {
   const isKeyValid = value => (!_.isEmpty(value) && value.length === 64);
@@ -167,16 +181,16 @@ ipcMain.on('storeApiKey', async (event, keys) => {
       if (_.get(credentialsStatus, 'code', false) === 200) {
         const result = await storeKeysInDb(apiKey, apiSecret);
         if (!result) {
-          ipcReduxSend('setStatus', { code: 500, msg: 'Cannot store keys in db' });
+          setStatus({ code: 500, msg: 'Cannot store keys in db' });
         } else {
-          setTimeout(() => ipcReduxSend('setStatus', { code: 201, msg: 'New Keys stored and validated' }), 2000);
+          setStatus({ code: 201, msg: 'New Keys stored and validated' });
         }
       } else {
-        ipcReduxSend('setStatus', credentialsStatus);
+        setStatus(credentialsStatus);
       }
     } catch (error) {
       console.error(error);
-      ipcReduxSend('setStatus', extractBinanceErrorObject(error));
+      setStatus(extractBinanceErrorObject(error));
     }
   }
 });
@@ -185,13 +199,13 @@ ipcMain.on('getApiKey', async () => {
   try {
     const keys = await getKeysFromDb();
     if (_.get(keys, '[0].apiKey', false)) {
-      ipcReduxSend('setStatus', { code: 202, msg: 'Getting keys ok' });
+      setStatus({ code: 202, msg: 'Getting keys ok' });
       ipcReduxSend('getApiKey', _.get(keys, '[0]'));
     } else {
-      ipcReduxSend('setStatus', { code: 404, msg: 'No Api Keys stored' });
+      setStatus({ code: 404, msg: 'No Api Keys stored' });
     }
   } catch (error) {
-    ipcReduxSend('setStatus', extractBinanceErrorObject(error));
+    setStatus(extractBinanceErrorObject(error));
   }
 });
 
@@ -210,7 +224,7 @@ ipcMain.on('getBalance', async (event, coin) => {
       }
     } catch (error) {
       console.error(error);
-      ipcReduxSend('setStatus', extractBinanceErrorObject(error));
+      setStatus(extractBinanceErrorObject(error));
     }
   }
 });
@@ -232,7 +246,8 @@ ipcMain.on('buyCoin', async (event, { coin, amount, stopLoss }) => {
         if (orderId) {
           const stopLossPrice = BinanceHandler.getStopLossPrice(stopLoss, _.get(report, 'coinPrice', false));
           const tradeObject = {
-            ...report,
+            coin,
+            stopLoss,
             stopLossPrice,
           };
           storeTrade(tradeObject);
@@ -243,7 +258,7 @@ ipcMain.on('buyCoin', async (event, { coin, amount, stopLoss }) => {
       }
     } catch (error) {
       console.error(error);
-      ipcReduxSend('setStatus', extractBinanceErrorObject(error));
+      setStatus(extractBinanceErrorObject(error));
     }
   }
 });
@@ -260,44 +275,51 @@ ipcMain.on('getTrades', async () => {
     })));
     ipcReduxSend('getTrades', validatedTrades);
   } catch (error) {
-    ipcReduxSend('setStatus', extractBinanceErrorObject(error));
+    setStatus(extractBinanceErrorObject(error));
   }
 });
 
+const getEnrichedBalances = async () => {
+  const binanceClient = await getBinanceClient();
+  // const tradesFromDb = await getTradesFromDb();
+
+  const balances = await BinanceHandler.getCoinsBalance(
+    coinList,
+    binanceClient,
+  );
+  return Promise.all(_.map(balances, async (balance) => {
+    const priceinBtc = await BinanceHandler.getCoinPriceCalculatedFromAmount(
+      binanceClient,
+      'BTC',
+      balance.code,
+      balance.balance,
+      6,
+    );
+    const priceInUsd = await BinanceHandler.getCoinPriceCalculatedFromAmount(
+      binanceClient,
+      'USDT',
+      'BTC',
+      priceinBtc,
+      1,
+    );
+
+    const returnValue = {
+      ...balance,
+      priceinBtc,
+      priceInUsd,
+      stopLoss: 0.2,
+      stopLossPrice: 0,
+      low: (priceInUsd < 1),
+    };
+    return returnValue;
+    // return _.unionBy(tradesFromDb, returnValue, 'code');
+  }));
+};
 ipcMain.on('getBalances', async () => {
   try {
-    const binanceClient = await getBinanceClient();
-    const balances = await BinanceHandler.getCoinsBalance(
-      coinList,
-      binanceClient,
-    );
-    const enrichedBalances = await Promise.all(_.map(balances, async (balance) => {
-      const priceinBtc = await BinanceHandler.getCoinPriceCalculatedFromAmount(
-        binanceClient,
-        'BTC',
-        balance.code,
-        balance.balance,
-        6,
-      );
-      const priceInUsd = await BinanceHandler.getCoinPriceCalculatedFromAmount(
-        binanceClient,
-        'USDT',
-        'BTC',
-        priceinBtc,
-        1,
-      );
-      const returnValue = {
-        ...balance,
-        priceinBtc,
-        priceInUsd,
-        stopLoss: 0.2,
-        low: (priceInUsd < 1),
-      };
-      return returnValue;
-    }));
-    ipcReduxSend('getBalances', enrichedBalances);
+    ipcReduxSend('getBalances', await getEnrichedBalances());
   } catch (error) {
-    ipcReduxSend('setStatus', extractBinanceErrorObject(error));
+    setStatus(extractBinanceErrorObject(error));
   }
 });
 

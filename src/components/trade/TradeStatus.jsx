@@ -50,9 +50,10 @@ const TradeStatus = (props) => {
                   <TableCell>Coin</TableCell>
                   <TableCell align="right">Quantity</TableCell>
                   <TableCell align="right">Price in BTC</TableCell>
-                  <TableCell align="right">Dollar</TableCell>
-                  <TableCell align="right">Stop Loss</TableCell>
-                  <TableCell align="center" className={classes.margin}>Action</TableCell>
+                  <TableCell align="right">Price in Dollar Theter</TableCell>
+                  <TableCell align="right">Stop Loss in %</TableCell>
+                  <TableCell align="right">Stop Loss BTC price</TableCell>
+                  <TableCell align="right" className={classes.margin}>Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -65,7 +66,8 @@ const TradeStatus = (props) => {
                     <TableCell align="right">{row.priceinBtc}</TableCell>
                     <TableCell align="right">{row.priceInUsd}</TableCell>
                     <TableCell align="right">{row.stopLoss}</TableCell>
-                    <TableCell align="center">
+                    <TableCell align="right">{row.stopLossPrice}</TableCell>
+                    <TableCell align="right">
                       <Button
                         variant="contained"
                         size="small"
@@ -82,7 +84,7 @@ const TradeStatus = (props) => {
                         className={classes.margin}
                         onClick={() => setStopLoss(row.code)}
                       >
-                        Stop Loss
+                        set stop loss
                       </Button>
                     </TableCell>
                   </TableRow>

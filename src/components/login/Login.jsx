@@ -78,17 +78,19 @@ const Login = (props: LoginProps) => {
   const classes = useStyles();
   const [modalStyle] = React.useState(getModalStyle);
 
-  const [apiKey, setApiKey] = useState(true);
-  const [apiSecret, setApiSecret] = useState(true);
+  const [apiKey, setApiKey] = useState('');
+  const [apiSecret, setApiSecret] = useState('');
 
   const { keys, status, open, handleClose, storeApiKey } = props;
+  console.log('TCL: Login -> status', status);
+  console.log('TCL: Login -> keys', keys);
 
   useEffect(() => {
     if (keys) {
       setApiKey(_.get(keys, 'apiKey'));
       setApiSecret(_.get(keys, 'apiSecret'));
     }
-  }, [keys, status]);
+  }, [keys]);
 
   const isKeyValid = () => (
     apiKey.length < 63
