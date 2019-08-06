@@ -82,7 +82,7 @@ type AddTradeProps = {
   handleClose: Function,
   open: boolean,
   balance: any,
-  keys: {
+  key: {
     apiKey: string,
     apiSecret: string,
   },

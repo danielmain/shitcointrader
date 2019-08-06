@@ -64,7 +64,7 @@ type LoginProps = {
   storeApiKey: Function,
   handleClose: Function,
   open: boolean,
-  keys: {
+  api: {
     apiKey: string,
     apiSecret: string,
   },
@@ -81,16 +81,14 @@ const Login = (props: LoginProps) => {
   const [apiKey, setApiKey] = useState('');
   const [apiSecret, setApiSecret] = useState('');
 
-  const { keys, status, open, handleClose, storeApiKey } = props;
-  console.log('TCL: Login -> status', status);
-  console.log('TCL: Login -> keys', keys);
+  const { api, status, open, handleClose, storeApiKey } = props;
 
   useEffect(() => {
-    if (keys) {
-      setApiKey(_.get(keys, 'apiKey'));
-      setApiSecret(_.get(keys, 'apiSecret'));
+    if (api) {
+      setApiKey(_.get(api, 'apiKey'));
+      setApiSecret(_.get(api, 'apiSecret'));
     }
-  }, [keys]);
+  }, [api]);
 
   const isKeyValid = () => (
     apiKey.length < 63
@@ -169,7 +167,7 @@ const mapStateToProps = state => ({
   ...state,
 });
 const mapDispatchToProps = dispatch => ({
-  storeApiKey: keys => dispatch(send('storeApiKey', keys)),
+  storeApiKey: api => dispatch(send('storeApiKey', api)),
   setStatus: status => dispatch(send('setStatus', status)),
 });
 

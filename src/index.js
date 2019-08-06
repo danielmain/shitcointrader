@@ -126,7 +126,7 @@ const storeTrade = async (transaction) => {
   } catch (error) {
     console.error(error);
   }
-  return false;
+  return null;
 };
 
 const getKeysFromDb = async () => {
@@ -136,7 +136,7 @@ const getKeysFromDb = async () => {
   } catch (error) {
     console.error(error);
   }
-  return false;
+  return null;
 };
 
 const getTradesFromDb = async () => {
@@ -150,16 +150,16 @@ const getTradesFromDb = async () => {
 };
 
 const getBinanceClient = async () => {
-  const keys = await getKeysFromDb();
-  if (keys) {
-    const apiKey = _.get(keys, '[0].apiKey');
-    const apiSecret = _.get(keys, '[0].apiSecret');
+  const key = await getKeysFromDb();
+  if (key) {
+    const apiKey = _.get(key, '[0].apiKey');
+    const apiSecret = _.get(key, '[0].apiSecret');
     return BinanceHandler.getBinanceClient(
       apiKey,
       apiSecret,
     );
   }
-  setStatus({ code: 500, msg: 'No keys stored, please set the keys agian' });
+  setStatus({ code: 500, msg: 'No key stored, please set the keys agian' });
   return null;
 };
 
@@ -170,39 +170,47 @@ ipcMain.on('getStatus', async (event, status) => {
   ipcReduxSend('getStatus', status);
 });
 
-ipcMain.on('storeApiKey', async (event, keys) => {
+type ApiKey = { apiKey: string, apiSecret: string };
+
+const isApiKeyValid = async (key:ApiKey): Promise<boolean> => {
   const isKeyValid = value => (!_.isEmpty(value) && value.length === 64);
-  const apiKey = _.get(keys, 'apiKey', API_KEY);
-  const apiSecret = _.get(keys, 'apiSecret', API_SECRET);
+  const apiKey = _.get(key, 'apiKey', API_KEY);
+  const apiSecret = _.get(key, 'apiSecret', API_SECRET);
 
   if (isKeyValid(apiKey) && isKeyValid(apiSecret)) {
     try {
       const credentialsStatus = await BinanceHandler.checkCredentials(apiKey, apiSecret);
-      if (_.get(credentialsStatus, 'code', false) === 200) {
-        const result = await storeKeysInDb(apiKey, apiSecret);
-        if (!result) {
-          setStatus({ code: 500, msg: 'Cannot store keys in db' });
-        } else {
-          setStatus({ code: 201, msg: 'New Keys stored and validated' });
-        }
-      } else {
-        setStatus(credentialsStatus);
-      }
+      return (_.get(credentialsStatus, 'code', false) === 200);
     } catch (error) {
       console.error(error);
       setStatus(extractBinanceErrorObject(error));
+    }
+  }
+  return false;
+};
+
+ipcMain.on('storeApiKey', async (event, key: ApiKey) => {
+  if (await isApiKeyValid(key)) {
+    const result = await storeKeysInDb(key.apiKey, key.apiSecret);
+    if (!result) {
+      setStatus({ code: 500, msg: 'Cannot store keys in db' });
+    } else {
+      setStatus({ code: 201, msg: 'New Keys stored and validated' });
     }
   }
 });
 
 ipcMain.on('getApiKey', async () => {
   try {
-    const keys = await getKeysFromDb();
-    if (_.get(keys, '[0].apiKey', false)) {
-      setStatus({ code: 202, msg: 'Getting keys ok' });
-      ipcReduxSend('getApiKey', _.get(keys, '[0]'));
+    const key:any = await getKeysFromDb();
+    if (key && _.get(key, '[0].apiKey', false)) {
+      if (await isApiKeyValid(key)) {
+        setStatus({ code: 202, msg: 'Getting key ok' });
+        ipcReduxSend('getApiKey', _.get(key, '[0]'));
+      }
     } else {
       setStatus({ code: 404, msg: 'No Api Keys stored' });
+      ipcReduxSend('getApiKey', { apiKey: '', apiSecret: '' });
     }
   } catch (error) {
     setStatus(extractBinanceErrorObject(error));

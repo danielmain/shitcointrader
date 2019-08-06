@@ -11,8 +11,6 @@ import AddIcon from '@material-ui/icons/Add';
 import Fab from '@material-ui/core/Fab';
 import lime from '@material-ui/core/colors/lime';
 import BlockUi from 'react-block-ui';
-import from 'react-block-ui/style.css';
-
 import _ from 'lodash';
 import Login from '../login';
 import { TradeStatus, AddTrade } from '../trade';
@@ -30,6 +28,11 @@ const useStyles = makeStyles(theme => ({
   root: {
     flexGrow: 1,
   },
+  stickToBottom: {
+    width: '100%',
+    position: 'fixed',
+    bottom: 0,
+  },
   menuButton: {
     marginRight: theme.spacing(2),
   },
@@ -45,110 +48,98 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+type ApiKey = { apiKey: string, apiSecret: string };
+
+type Balance = {
+  balance: number,
+  priceinBtc: number,
+  priceInUsd: number,
+  stopLoss: number,
+  stopLossPrice?: number,
+};
+
+type Status = {
+  code: number,
+  msg: string,
+}
+
 type LoginProps = {
-  keys: {
-    apiKey: string,
-    apiSecret: string,
-  },
+  api: ApiKey,
   status: {
     code: string,
     msg: string,
-  }
+  },
+  balances: [Balance],
+  getApiKey: Function,
+  getBalances: Function,
+  status: Status,
 };
 
 const Home = (props: LoginProps) => {
   const classes = useStyles(theme);
   const [openLogin, setOpenLogin] = React.useState(false);
   const [openAddTrade, setOpenAddTrade] = React.useState(false);
-
-  const getApiKey = _.get(props, 'getApiKey');
-  const keys = _.get(props, 'keys', false);
-
-  // const getTrades = _.get(props, 'getTrades');
-  // const trades = _.get(props, 'trades', []);
-
-  const getBalances = _.get(props, 'getBalances');
-  const balances = _.get(props, 'balances', []);
-
-  const statusCode = _.get(props, 'status.code', false);
-  const status = _.get(props, 'status', { code: 0 });
+  const { api, balances, getApiKey, getBalances } = props;
 
   useEffect(() => {
-    if (!_.get(props, 'keys.apiKey')) {
+    if (!api) {
       getApiKey();
+    } else if (!api.apiKey) {
+      console.log('Opening Login');
+      setOpenLogin(true);
+    } else if (_.isEmpty(balances)) {
+      getBalances();
     }
-    // else {
-    //   console.dir(props);
-    //   console.log('Opening Login');
-    //   setOpenLogin(true);
-    // }
-    // if (_.isEmpty(balances) && keys) {
-    //   // getTrades();
-    //   // getBalances();
-    // }
-  }, [
-    keys,
-    // statusCode,
-    // balances,
-  ]);
-
-  useEffect(() => {
-    if (_.get(status, 'msg', false)) {
-      alert(_.get(status, 'msg'));
-    }
-  }, [statusCode]);
+  }, [api, balances]);
 
   return (
     <MuiThemeProvider theme={theme}>
-      <div className={classes.root}>
+      <BlockUi tag="div" blocking={_.isEmpty(api) || _.isEmpty(balances)} className={classes.root}>
         <CssBaseline />
-        <BlockUi tag="div" blocking={!keys}>
-          <AppBar position="static">
-            <Toolbar>
-              <Typography variant="h6" className={classes.title}>
+        <AppBar position="static">
+          <Toolbar>
+            <Typography variant="h6" className={classes.title}>
               Shitcoin Trader
-              </Typography>
-              <Button variant="contained" onClick={() => setOpenLogin(true)}>Binance Keys</Button>
-            </Toolbar>
-          </AppBar>
-          { openLogin
-            ? (
-              <Login
-                open={openLogin}
-                keys={keys}
-                handleClose={() => setOpenLogin(false)}
-              />
-            ) : null
-          }
-          { openAddTrade
-            ? (
-              <AddTrade
-                open={openAddTrade}
-                handleClose={() => setOpenAddTrade(false)}
-              />
-            )
-            : null
-          }
+            </Typography>
+            <Button variant="contained" onClick={() => setOpenLogin(true)}>Binance Keys</Button>
+          </Toolbar>
+        </AppBar>
+        { openLogin
+          ? (
+            <Login
+              open={openLogin}
+              api={api}
+              handleClose={() => setOpenLogin(false)}
+            />
+          ) : null
+        }
+        { openAddTrade
+          ? (
+            <AddTrade
+              open={openAddTrade}
+              handleClose={() => setOpenAddTrade(false)}
+            />
+          )
+          : null
+        }
+        <div>
+          <Fab
+            size="medium"
+            color="secondary"
+            aria-label="Add"
+            className={classes.margin}
+            onClick={() => setOpenAddTrade(true)}
+          >
+            <AddIcon />
+          </Fab>
+        </div>
 
-          <div>
-            <Fab
-              size="medium"
-              color="secondary"
-              aria-label="Add"
-              className={classes.margin}
-              onClick={() => setOpenAddTrade(true)}
-            >
-              <AddIcon />
-            </Fab>
+        { (!_.isEmpty(balances)) ? (
+          <div className={classes.tradingContainer}>
+            <TradeStatus balances={balances} />
           </div>
-
-          { (!_.isEmpty(balances)) ? (
-            <div className={classes.tradingContainer}>
-              <TradeStatus balances={balances} />
-            </div>
-          ) : null }
-        </BlockUi>
-      </div>
+        ) : null }
+      </BlockUi>
     </MuiThemeProvider>
   );
 };

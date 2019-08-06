@@ -6,16 +6,16 @@ const reducers = (state = {}, action) => {
     console.log('reducers=> STORE_APIKEY', action);
     return {
       ...state,
-      keys: _.get(action, 'payload', {}),
+      key: _.get(action, 'payload', {}),
     };
   // case '@@IPC':
     // console.log('reducers=> IPC', action);
     // return state;
   case 'GET_APIKEY':
-    console.log('reducers=> GET_APIKEY', action);
+    console.log('reducers=> GET_APIKEY', _.get(action, 'payload'));
     return {
       ...state,
-      keys: _.get(action, 'payload'),
+      api: _.get(action, 'payload'),
     };
   case 'SET_STATUS':
     console.log('reducers=> SET_STATUS', action);

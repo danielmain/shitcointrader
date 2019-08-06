@@ -16,7 +16,7 @@ export const BUY_COIN = 'BUY_COIN';
  */
 
 export function storeApiKey(event, payload) {
-  console.log('Actions: storeApiKey -> keys', payload);
+  console.log('Actions: storeApiKey -> key', payload);
   return { type: STORE_APIKEY, payload };
 }
 
