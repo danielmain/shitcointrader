@@ -10,12 +10,12 @@
 
 ⚡This desktop app is basically a wrapper of an usual exchange, eliminating the confusing options to make a simple trade.
 <div align="center">
-    <img src="./img/shitcoin-screenshot.png" width="600" />
+    <img src="./img/shitcoin-screenshot.png" width="800" />
 </div>
 <br/>
 ⚡Shitcointrader allows you buy shitcoins (alternative coins) using your Bitcoins located in your Binance Wallet and sets automatically a stop loss.
 <div align="center">
-    <img src="./img/trade-screenshot.png" width="600" />
+    <img src="./img/trade-screenshot.png" width="800" />
 </div>
 <br/>
 ⚡The stoploss price is automatically updated when the price goes up.
