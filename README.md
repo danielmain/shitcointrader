@@ -1,7 +1,7 @@
 
 <br/>
 <div align="center">
-    <img width="380px" src="./icon.png.png">
+    <img width="380px" src="./icon.png">
 </div>
 <br/>
 # shitcointrader
