@@ -4,6 +4,7 @@
     <img width="380px" src="./icon.png">
 </div>
 <br/>
+
 # shitcointrader
 
 ⚡This desktop app is basically a wrapper of an usual exchange, eliminating the confusing options to make a simple trade.
