@@ -3,9 +3,10 @@
 <div align="center">
     <img width="380px" src="./icon.png">
 </div>
+<div align="center">
+    <img width="380px" src="./img/shitcoin-trader-text.png">
+</div>
 <br/>
-
-# shitcointrader
 
 ⚡This desktop app is basically a wrapper of an usual exchange, eliminating the confusing options to make a simple trade.
 <div align="center">
@@ -22,7 +23,6 @@
     <img src="./img/stop-loss.png" width="600" />
 </div>
 <br/>
-
 
 # Icons license
 “Designed by [[author link](https://www.freepik.com/)] from www.flaticon.com” and is licensed by Creative Commons BY 3.0 from @flaticon”).
