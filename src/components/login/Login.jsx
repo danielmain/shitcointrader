@@ -106,7 +106,7 @@ const Login = (props: LoginProps) => {
       <Card style={modalStyle} className={classes.paper}>
         <CardHeader
           avatar={(
-            <Avatar alt="Remy Sharp" src={logoUri} className={classes.bigAvatar} />
+            <Avatar alt="Binance" src={logoUri} className={classes.bigAvatar} />
           )}
           title="Binance Keys"
           subheader="Your keys never leave your computer"

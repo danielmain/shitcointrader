@@ -170,8 +170,6 @@ ipcMain.on('getStatus', async (event, status) => {
   ipcReduxSend('getStatus', status);
 });
 
-type ApiKey = { apiKey: string, apiSecret: string };
-
 const isApiKeyValid = async (key:ApiKey): Promise<boolean> => {
   const isKeyValid = value => (!_.isEmpty(value) && value.length === 64);
   const apiKey = _.get(key, 'apiKey', API_KEY);

@@ -31,9 +31,7 @@ const useStyles = makeStyles(theme => ({
 
 const TradeStatus = (props) => {
   const classes = useStyles();
-  const balances = _.get(props, 'balances', []);
-  const sellCoin = _.get(props, 'sellCoin');
-  const setStopLoss = _.get(props, 'setStopLoss');
+  const { balances, sellCoin, setStopLoss } = props;
 
   const sell = (coinSymbol) => {
     sellCoin(coinSymbol);
