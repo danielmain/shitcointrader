@@ -8,6 +8,8 @@
 </div>
 <br/>
 
+ ✋ ✋ ✋This Project is still in Beta phase, do not trade any cryptocurrency yet.  ✋ ✋ ✋
+
 ⚡This desktop app is basically a wrapper of an usual exchange, eliminating the confusing options to make a simple trade.
 <div align="center">
     <img src="./img/shitcoin-screenshot.png" width="800" />
@@ -23,6 +25,15 @@
     <img src="./img/stop-loss.png" width="600" />
 </div>
 <br/>
+<br/>
+
+# How to build
+
+- Prerequisites: Node 10+,Yarn 1.0
+- Checkout the project
+- Run: yarn install
+- Run: yarn run package
+- Check ./out folder for your executable file
 
 # Icons license
 “Designed by [[Freepik](https://www.freepik.com/)] from www.flaticon.com” and is licensed by Creative Commons BY 3.0 from @flaticon”).
