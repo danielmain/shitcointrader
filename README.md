@@ -8,7 +8,10 @@
 </div>
 <br/>
 
- ✋ ✋ ✋This Project is still in Beta phase, do not trade any cryptocurrency yet.  ✋ ✋ ✋
+<br/>
+<div align="center"> ✋ ✋ ✋This Project is still in Beta phase, do not trade any cryptocurrency yet.  ✋ ✋ ✋</div>
+<br/>
+<br/>
 
 ⚡This desktop app is basically a wrapper of an usual exchange, eliminating the confusing options to make a simple trade.
 <div align="center">
