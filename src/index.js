@@ -25,6 +25,12 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
   app.quit();
 }
 
+let dev = false;
+
+if (process.defaultApp || /[\\/]electron-prebuilt[\\/]/.test(process.execPath) || /[\\/]electron[\\/]/.test(process.execPath)) {
+  dev = true;
+}
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -55,17 +61,13 @@ const createWindow = () => {
     },
   });
 
-  // BrowserWindow.addDevToolsExtension(
-  // '/Users/daniel/Library/Application
-  // Support/BraveSoftware/Brave-Browser-Dev/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd
-  // /2.17.0_0',
-  // );
-
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/index.html`);
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // Open the DevTools automatically if developing
+  if (dev) {
+    mainWindow.webContents.openDevTools();
+  }
 
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
