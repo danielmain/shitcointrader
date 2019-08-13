@@ -1,4 +1,6 @@
 import fs from 'fs';
+import cj from 'color-json';
+import Logger from './logger';
 
 const Datastore = require('nedb-promises');
 
@@ -18,13 +20,14 @@ const removeDb = (electronApp, fileName): void => {
 const DatabaseHandler = {
   getSetupCollection: async (electronApp): any => {
     try {
+      Logger.debug('DatabaseHandler->getSetupCollection');
       const setupCollection = await getDb(electronApp, 'setup.db');
       setupCollection.ensureIndex({ fieldName: 'apiKey', unique: true }, (err) => {
-        console.error(err);
+        Logger.error(`DatabaseHandler->getSetupCollection ${cj(err)}`);
       });
       return setupCollection;
     } catch (error) {
-      console.error('ERROR ====>', error);
+      Logger.error(`DatabaseHandler->getSetupCollection ${cj(error)}`);
     }
   },
   cleanSetup: (electronApp): void => removeDb(electronApp, 'setup.db'),

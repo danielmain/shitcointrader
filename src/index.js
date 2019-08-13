@@ -1,6 +1,10 @@
 // @flow
 import _ from 'lodash';
+import cj from 'color-json';
+import type { ApiKey } from './api/binance.js.flow';
 import { coinList } from './statics/coins';
+import Logger from './api/logger';
+
 // Binance stuff ------------------------------------ //
 import BinanceHandler from './api/binanceHandler';
 // Database stuff ----------------------------------- //
@@ -36,21 +40,21 @@ if (process.defaultApp || /[\\/]electron-prebuilt[\\/]/.test(process.execPath) |
 let mainWindow;
 
 // Application State --------------------------------- //
-const status = {
-  code: 0,
-  msg: '',
-};
+type StatusObject = { code: number, msg: string };
+const status:Array<StatusObject> = [];
 
-const setStatus = (statusObject) => {
-  status.code = statusObject.code;
-  status.msg = statusObject.msg;
+const updateStatus = (statusValue: StatusObject): void => {
+  Logger.debug(`updateStatus - statusValue:${cj(statusValue)}`);
+  const { code, msg } = statusValue;
+  status.push({ code, msg });
   mainWindow.webContents.send(
     'updateStatus',
-    new Date(),
+    status,
   );
 };
 
 const createWindow = () => {
+  Logger.debug('Create the browser window');
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 1300,
@@ -89,25 +93,24 @@ const ipcReduxSend = (action, payload) => {
   mainWindow.webContents.send(action, payload);
 };
 
-const extractBinanceErrorObject = (error, code = false) => {
+const extractBinanceErrorObject = (error, code = false):StatusObject => {
   const errorBody = JSON.parse(error.body);
-  const errorObjectCode = code || (_.get(errorBody, 'code', false));
-  const errorObjectMessage = (_.get(errorBody, 'msg', false) || _.get(errorBody, 'syscall', false) || JSON.stringify(errorBody));
-  const errorObject = (errorObjectCode)
-    ? { error: errorObjectCode, msg: errorObjectMessage }
-    : { error: 500, msg: JSON.stringify(errorBody) };
-  return errorObject;
+  const errorObjectCode:number = code || _.get(errorBody, 'code');
+  const errorObjectMessage:string = (_.get(errorBody, 'msg', false) || _.get(errorBody, 'syscall', false) || cj(errorBody));
+  if (errorObjectCode) { return { code: errorObjectCode, msg: errorObjectMessage }; }
+  return { code: 500, msg: cj(errorBody) };
 };
 
 process.on('uncaughtException', (error) => {
-  setStatus(extractBinanceErrorObject(error));
+  Logger.debug('uncaughtException');
+  updateStatus(extractBinanceErrorObject(error));
 });
 
 const storeKeysInDb = async (apiKey: string, apiSecret: string) => {
   try {
     await DatabaseHandler.cleanSetup(app);
   } catch (error) {
-    console.error(error);
+    Logger.error(error);
   }
   const setupCollection = await DatabaseHandler.getSetupCollection(app);
   try {
@@ -116,7 +119,7 @@ const storeKeysInDb = async (apiKey: string, apiSecret: string) => {
       apiSecret,
     });
   } catch (error) {
-    console.error(error);
+    Logger.error(error);
   }
   return false;
 };
@@ -126,33 +129,27 @@ const storeTrade = async (transaction) => {
   try {
     return await tradingCollection.insert(transaction);
   } catch (error) {
-    console.error(error);
+    Logger.error(error);
   }
   return null;
 };
 
-const getKeysFromDb = async () => {
-  try {
-    const setupCollection = await DatabaseHandler.getSetupCollection(app);
-    return await setupCollection.find({});
-  } catch (error) {
-    console.error(error);
-  }
-  return null;
+const getKeysFromDb = async (): Promise<any> => {
+  Logger.debug('getKeysFromDb');
+  const setupCollection = await DatabaseHandler.getSetupCollection(app);
+  return setupCollection.find({});
 };
 
 const getTradesFromDb = async () => {
-  try {
-    const tradingCollection = await DatabaseHandler.getTradingCollection(app);
-    return await tradingCollection.find({});
-  } catch (error) {
-    console.error(error);
-  }
-  return [];
+  Logger.debug('getTradesFromDb');
+  const tradingCollection = await DatabaseHandler.getTradingCollection(app);
+  return tradingCollection.find({});
 };
 
 const getBinanceClient = async () => {
+  Logger.debug('getBinanceClient');
   const key = await getKeysFromDb();
+  Logger.debug(`getBinanceClient - ${cj(key)}`);
   if (key) {
     const apiKey = _.get(key, '[0].apiKey');
     const apiSecret = _.get(key, '[0].apiSecret');
@@ -161,19 +158,19 @@ const getBinanceClient = async () => {
       apiSecret,
     );
   }
-  setStatus({ code: 500, msg: 'No key stored, please set the keys agian' });
+  updateStatus({ code: 500, msg: 'No key stored, please set the keys agian' });
   return null;
 };
 
-const extractBtcFromCoinSymbol = symbol => symbol.replace(/BTC/g, '');
+const extractBtcFromCoinSymbol = (symbol) => symbol.replace(/BTC/g, '');
 
-ipcMain.on('getStatus', async (event, status) => {
-  console.log('TCL: status', status);
-  ipcReduxSend('getStatus', status);
+ipcMain.on('updateStatus', async () => {
+  Logger.info('index (REDUX) -> updateStatus');
+  ipcReduxSend('updateStatus', status);
 });
 
 const isApiKeyValid = async (key:ApiKey): Promise<boolean> => {
-  const isKeyValid = value => (!_.isEmpty(value) && value.length === 64);
+  const isKeyValid = (value) => (!_.isEmpty(value) && value.length === 64);
   const apiKey = _.get(key, 'apiKey', API_KEY);
   const apiSecret = _.get(key, 'apiSecret', API_SECRET);
 
@@ -182,42 +179,51 @@ const isApiKeyValid = async (key:ApiKey): Promise<boolean> => {
       const credentialsStatus = await BinanceHandler.checkCredentials(apiKey, apiSecret);
       return (_.get(credentialsStatus, 'code', false) === 200);
     } catch (error) {
-      console.error(error);
-      setStatus(extractBinanceErrorObject(error));
+      Logger.error('uncaughtException', { argument: error });
+      updateStatus(extractBinanceErrorObject(error));
     }
   }
   return false;
 };
 
 ipcMain.on('storeApiKey', async (event, key: ApiKey) => {
+  Logger.info('index (REDUX) -> storeApiKey');
   if (await isApiKeyValid(key)) {
     const result = await storeKeysInDb(key.apiKey, key.apiSecret);
     if (!result) {
-      setStatus({ code: 500, msg: 'Cannot store keys in db' });
+      updateStatus({ code: 500, msg: 'Cannot store keys in db' });
     } else {
-      setStatus({ code: 201, msg: 'New Keys stored and validated' });
+      updateStatus({ code: 201, msg: 'New Keys stored and validated' });
     }
   }
 });
 
 ipcMain.on('getApiKey', async () => {
-  try {
-    const key:any = await getKeysFromDb();
-    if (key && _.get(key, '[0].apiKey', false)) {
-      if (await isApiKeyValid(key)) {
-        setStatus({ code: 202, msg: 'Getting key ok' });
-        ipcReduxSend('getApiKey', _.get(key, '[0]'));
-      }
+  Logger.info('index (REDUX) -> getApiKey');
+  getKeysFromDb().catch((error) => {
+    updateStatus(extractBinanceErrorObject(error));
+  }).then((key) => {
+    const apiKey = _.get(key, '[0].apiKey', false);
+    if (apiKey) {
+      Logger.debug(`getApiKey-> ${cj(key)}`);
+      isApiKeyValid(apiKey).then((valid) => {
+        if (valid) {
+          updateStatus({ code: 202, msg: 'Getting key ok' });
+          ipcReduxSend('getApiKey', _.get(key, '[0]'));
+        } else {
+          updateStatus({ code: 406, msg: 'Api Key not valid' });
+          ipcReduxSend('getApiKey', { apiKey: '', apiSecret: '' });
+        }
+      });
     } else {
-      setStatus({ code: 404, msg: 'No Api Keys stored' });
+      updateStatus({ code: 404, msg: 'No Api Keys stored' });
       ipcReduxSend('getApiKey', { apiKey: '', apiSecret: '' });
     }
-  } catch (error) {
-    setStatus(extractBinanceErrorObject(error));
-  }
+  });
 });
 
 ipcMain.on('getBalance', async (event, coin) => {
+  Logger.info('index (REDUX) -> getBalance');
   if (!_.isEmpty(coin)) {
     try {
       const binanceClient = await getBinanceClient();
@@ -231,13 +237,14 @@ ipcMain.on('getBalance', async (event, coin) => {
         ipcReduxSend('getBalance', balance);
       }
     } catch (error) {
-      console.error(error);
-      setStatus(extractBinanceErrorObject(error));
+      //     Logger.error('uncaughtException', {       argument: error,     });;
+      updateStatus(extractBinanceErrorObject(error));
     }
   }
 });
 
 ipcMain.on('buyCoin', async (event, { coin, amount, stopLoss }) => {
+  Logger.info('index (REDUX) -> buyCoin');
   if (!_.isEmpty(coin) && !_.isEmpty(coin)) {
     try {
       const binanceClient = await getBinanceClient();
@@ -265,25 +272,26 @@ ipcMain.on('buyCoin', async (event, { coin, amount, stopLoss }) => {
         }
       }
     } catch (error) {
-      console.error(error);
-      setStatus(extractBinanceErrorObject(error));
+      //     Logger.error('uncaughtException', {       argument: error,     });;
+      updateStatus(extractBinanceErrorObject(error));
     }
   }
 });
 
 ipcMain.on('getTrades', async () => {
+  Logger.info('index (REDUX) -> getTrades');
   try {
     const tradesFromDb = await getTradesFromDb();
     const binanceClient = await getBinanceClient();
     const tradesFromBinance = await BinanceHandler.getOpenOrders(binanceClient);
     const trades = _.unionBy(tradesFromDb, tradesFromBinance, 'orderId');
-    const validatedTrades = await Promise.all(_.map(trades, async trade => ({
+    const validatedTrades = await Promise.all(_.map(trades, async (trade) => ({
       ...trade,
       coin: extractBtcFromCoinSymbol(trade.symbol),
     })));
     ipcReduxSend('getTrades', validatedTrades);
   } catch (error) {
-    setStatus(extractBinanceErrorObject(error));
+    updateStatus(extractBinanceErrorObject(error));
   }
 });
 
@@ -323,11 +331,13 @@ const getEnrichedBalances = async () => {
     // return _.unionBy(tradesFromDb, returnValue, 'code');
   }));
 };
+
 ipcMain.on('getBalances', async () => {
+  Logger.info('index (REDUX) -> getBalances');
   try {
     ipcReduxSend('getBalances', await getEnrichedBalances());
   } catch (error) {
-    setStatus(extractBinanceErrorObject(error));
+    updateStatus(extractBinanceErrorObject(error));
   }
 });
 

@@ -279,7 +279,7 @@ const mapStateToProps = state => ({
   ...state,
 });
 const mapDispatchToProps = dispatch => ({
-  setStatus: status => dispatch(send('setStatus', status)),
+  updateStatus: status => dispatch(send('updateStatus', status)),
   getBalance: coin => dispatch(send('getBalance', coin)),
   buyCoin: (coin, amount, stopLoss) => dispatch(send('buyCoin', { coin, amount, stopLoss })),
 });

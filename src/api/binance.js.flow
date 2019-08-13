@@ -1,2 +1,2 @@
 // @flow
-declare type ApiKey = { apiKey: string, apiSecret: string };
+export type ApiKey = { apiKey: string, apiSecret: string };

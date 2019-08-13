@@ -24,7 +24,7 @@ const theme = createMuiTheme({
     },
   },
 });
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
   },
@@ -72,6 +72,7 @@ type LoginProps = {
   balances: [Balance],
   getApiKey: Function,
   getBalances: Function,
+  updateStatus: Function,
   status: Status,
 };
 
@@ -79,7 +80,17 @@ const Home = (props: LoginProps) => {
   const classes = useStyles(theme);
   const [openLogin, setOpenLogin] = React.useState(false);
   const [openAddTrade, setOpenAddTrade] = React.useState(false);
-  const { api, balances, getApiKey, getBalances } = props;
+  const {
+    api, balances, getApiKey, getBalances, updateStatus, status,
+  } = props;
+  console.log('TCL: Home -> status', status);
+  useEffect(() => {
+    if (api && api.apiKey && _.isEmpty(balances)) {
+      getBalances();
+    } else if (_.isEmpty(status)) {
+      updateStatus();
+    }
+  }, [balances, status]);
 
   useEffect(() => {
     if (!api) {
@@ -87,10 +98,8 @@ const Home = (props: LoginProps) => {
     } else if (!api.apiKey) {
       console.log('Opening Login');
       setOpenLogin(true);
-    } else if (_.isEmpty(balances)) {
-      getBalances();
     }
-  }, [api, balances]);
+  }, [api]);
 
   return (
     <MuiThemeProvider theme={theme}>
@@ -111,8 +120,7 @@ const Home = (props: LoginProps) => {
               api={api}
               handleClose={() => setOpenLogin(false)}
             />
-          ) : null
-        }
+          ) : null}
         { openAddTrade
           ? (
             <AddTrade
@@ -120,8 +128,7 @@ const Home = (props: LoginProps) => {
               handleClose={() => setOpenAddTrade(false)}
             />
           )
-          : null
-        }
+          : null}
         <div>
           <Fab
             size="medium"
@@ -144,11 +151,11 @@ const Home = (props: LoginProps) => {
   );
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   ...state,
 });
-const mapDispatchToProps = dispatch => ({
-  setStatus: status => dispatch(send('setStatus', status)),
+const mapDispatchToProps = (dispatch) => ({
+  updateStatus: (status) => dispatch(send('updateStatus', status)),
   getApiKey: () => dispatch(send('getApiKey')),
   getTrades: () => dispatch(send('getTrades')),
   getBalances: () => dispatch(send('getBalances')),

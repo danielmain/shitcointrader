@@ -168,7 +168,7 @@ const mapStateToProps = state => ({
 });
 const mapDispatchToProps = dispatch => ({
   storeApiKey: api => dispatch(send('storeApiKey', api)),
-  setStatus: status => dispatch(send('setStatus', status)),
+  updateStatus: status => dispatch(send('updateStatus', status)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

@@ -16,7 +16,7 @@ import {
   getBalance,
   getBalances,
   getTrades,
-  setStatus,
+  updateStatus,
   buyCoin,
   sellCoin,
 } from './actions';
@@ -27,7 +27,7 @@ const ipc = createIpc({
   getTrades,
   getBalance,
   getBalances,
-  setStatus,
+  updateStatus,
   buyCoin,
   sellCoin,
 });
