@@ -12,6 +12,7 @@ import Avatar from '@material-ui/core/Avatar';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import _ from 'lodash';
+import StatusAlert from '../statusalert';
 
 const logoUri = 'images/binance.png';
 
@@ -28,7 +29,7 @@ const getModalStyle = () => {
   };
 };
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   paper: {
     position: 'absolute',
     width: 700,
@@ -90,6 +91,13 @@ const Login = (props: LoginProps) => {
     }
   }, [api]);
 
+  useEffect(() => {
+    console.log('TCL: Login -> status', status);
+    if (!_.isEmpty(status) && status.code === 200) {
+      handleClose();
+    }
+  }, [status]);
+
   const isKeyValid = () => (
     apiKey.length < 63
     || apiSecret.length < 63
@@ -120,7 +128,7 @@ const Login = (props: LoginProps) => {
             margin="normal"
             variant="outlined"
             value={apiKey}
-            onChange={e => setApiKey(e.target.value)}
+            onChange={(e) => setApiKey(e.target.value)}
             error={apiKey.length < 63}
           />
           <TextField
@@ -132,7 +140,7 @@ const Login = (props: LoginProps) => {
             margin="normal"
             variant="outlined"
             value={apiSecret}
-            onChange={e => setApiSecret(e.target.value)}
+            onChange={(e) => setApiSecret(e.target.value)}
             error={apiSecret.length < 63}
           />
           <Button
@@ -150,7 +158,6 @@ const Login = (props: LoginProps) => {
             className={clsx(classes.button, classes.buttonRight)}
             onClick={() => {
               storeApiKey(apiKey, apiSecret);
-              if (isKeyValid) handleClose();
             }}
             disabled={isKeyValid()}
           >
@@ -163,12 +170,12 @@ const Login = (props: LoginProps) => {
   );
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   ...state,
 });
-const mapDispatchToProps = dispatch => ({
-  storeApiKey: api => dispatch(send('storeApiKey', api)),
-  updateStatus: status => dispatch(send('updateStatus', status)),
+const mapDispatchToProps = (dispatch) => ({
+  storeApiKey: (api) => dispatch(send('storeApiKey', api)),
+  updateStatus: (status) => dispatch(send('updateStatus', status)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

@@ -4,8 +4,7 @@
 
 export const STORE_APIKEY = 'STORE_APIKEY';
 export const GET_APIKEY = 'GET_APIKEY';
-export const SET_STATUS = 'SET_STATUS';
-export const GET_STATUS = 'GET_STATUS';
+export const UPDATE_STATUS = 'UPDATE_STATUS';
 export const GET_BALANCE = 'GET_BALANCE';
 export const GET_BALANCES = 'GET_BALANCES';
 export const GET_TRADES = 'GET_TRADES';
@@ -27,7 +26,7 @@ export function getApiKey(event, payload) {
 
 export function updateStatus(event, payload) {
   console.log('Actions: status -> status', payload);
-  return { type: SET_STATUS, payload };
+  return { type: UPDATE_STATUS, payload };
 }
 
 export function getBalance(event, payload) {

@@ -1,7 +1,8 @@
 // @flow
 import _ from 'lodash';
 import cj from 'color-json';
-import type { ApiKey } from './api/binance.js.flow';
+import type ApiKey from './types/ApiKey.js.flow';
+import type Status from './types/Status.js.flow';
 import { coinList } from './statics/coins';
 import Logger from './api/logger';
 
@@ -40,13 +41,12 @@ if (process.defaultApp || /[\\/]electron-prebuilt[\\/]/.test(process.execPath) |
 let mainWindow;
 
 // Application State --------------------------------- //
-type StatusObject = { timestamp: Date, code: number, msg: string };
-let status:StatusObject = {};
+let status:Status = {};
 
-const updateStatus = (statusValue: StatusObject): void => {
+const updateStatus = (statusValue: Status): void => {
   Logger.debug(`updateStatus - statusValue:${cj(statusValue)}`);
   const { code, msg } = statusValue;
-  status = { timestamp: new Date(), code, msg };
+  status = { timestamp: (new Date()).getTime(), code, msg };
   mainWindow.webContents.send(
     'updateStatus',
     status,

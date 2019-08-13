@@ -17,14 +17,8 @@ const reducers = (state = {}, action) => {
       ...state,
       api: _.get(action, 'payload'),
     };
-  case 'SET_STATUS':
-    console.log('reducers=> SET_STATUS', action);
-    return {
-      ...state,
-      status: _.get(action, 'payload', {}),
-    };
-  case 'GET_STATUS':
-    console.log('reducers=> GET_STATUS', _.get(action, 'payload'));
+  case 'UPDATE_STATUS':
+    console.log('reducers=> UPDATE_STATUS', _.get(action, 'payload'));
     return {
       ...state,
       status: _.get(action, 'payload'),

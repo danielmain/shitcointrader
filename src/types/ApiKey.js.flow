@@ -1,0 +1,1 @@
+export default type ApiKey = { apiKey: string, apiSecret: string };

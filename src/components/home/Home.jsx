@@ -10,11 +10,13 @@ import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import Fab from '@material-ui/core/Fab';
 import lime from '@material-ui/core/colors/lime';
-import Snackbar from '@material-ui/core/Snackbar';
 import BlockUi from 'react-block-ui';
 import _ from 'lodash';
 import Login from '../login';
 import { TradeStatus, AddTrade } from '../trade';
+import StatusAlert from '../statusalert';
+import type ApiKey from '../../types/ApiKey.js.flow';
+import type Status from '../../types/Status.js.flow';
 
 const theme = createMuiTheme({
   palette: {
@@ -49,8 +51,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-type ApiKey = { apiKey: string, apiSecret: string };
-
 type Balance = {
   balance: number,
   priceinBtc: number,
@@ -58,11 +58,6 @@ type Balance = {
   stopLoss: number,
   stopLossPrice?: number,
 };
-
-type Status = {
-  code: number,
-  msg: string,
-}
 
 type LoginProps = {
   api: ApiKey,
@@ -81,13 +76,9 @@ const Home = (props: LoginProps) => {
   const classes = useStyles(theme);
   const [openLogin, setOpenLogin] = React.useState(false);
   const [openAddTrade, setOpenAddTrade] = React.useState(false);
-  const [statusContent, setStatusContent] = React.useState([]);
-
   const {
     api, balances, getApiKey, getBalances, updateStatus, status,
   } = props;
-
-  console.log('TCL: Home -> status', status);
 
   useEffect(() => {
     if (api && api.apiKey && _.isEmpty(balances)) {
@@ -104,18 +95,6 @@ const Home = (props: LoginProps) => {
     }
     updateStatus();
   }, [api]);
-
-  useEffect(() => {
-    if (!_.isEmpty(status)) {
-      const newStatus = _.concat(statusContent, [{ ...status, open: true }]);
-      setStatusContent(newStatus);
-    }
-  }, [status]);
-
-  const closeStatus = (st) => {
-    const newStatus = _.set(_.find(statusContent, { timestamp: st.timestamp }), 'open', false);
-    setStatusContent(newStatus);
-  };
 
   return (
     <MuiThemeProvider theme={theme}>
@@ -162,23 +141,8 @@ const Home = (props: LoginProps) => {
             <TradeStatus balances={balances} />
           </div>
         ) : null }
-        { _.map(statusContent, (st) => (
-          <Snackbar
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'left',
-            }}
-            open={_.get(st, 'open', false)}
-            onClose={() => closeStatus(st)}
-            autoHideDuration={6000}
-            ContentProps={{
-              'aria-describedby': 'message-id',
-            }}
-            message={<span id={st.timestamp}>{st.msg}</span>}
-          />
-        ))}
 
-
+        <StatusAlert status={status} />
       </BlockUi>
     </MuiThemeProvider>
   );

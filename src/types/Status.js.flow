@@ -1,0 +1,1 @@
+export default type Status = { timestamp: number, code: number, msg: string };
