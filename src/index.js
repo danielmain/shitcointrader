@@ -40,13 +40,13 @@ if (process.defaultApp || /[\\/]electron-prebuilt[\\/]/.test(process.execPath) |
 let mainWindow;
 
 // Application State --------------------------------- //
-type StatusObject = { code: number, msg: string };
-const status:Array<StatusObject> = [];
+type StatusObject = { timestamp: Date, code: number, msg: string };
+let status:StatusObject = {};
 
 const updateStatus = (statusValue: StatusObject): void => {
   Logger.debug(`updateStatus - statusValue:${cj(statusValue)}`);
   const { code, msg } = statusValue;
-  status.push({ code, msg });
+  status = { timestamp: new Date(), code, msg };
   mainWindow.webContents.send(
     'updateStatus',
     status,
