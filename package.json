@@ -84,7 +84,7 @@
     "bignumber.js": "^9.0.0",
     "clsx": "^1.0.4",
     "color-json": "^2.0.0",
-    "electron": "^6.0.2",
+    "electron": "^7.2.4",
     "electron-compile": "^6.4.4",
     "electron-devtools-installer": "^2.2.4",
     "electron-squirrel-startup": "^1.0.0",
